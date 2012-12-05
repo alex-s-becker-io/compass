@@ -6,14 +6,13 @@
  *
  * File name: compass.c
  *
- * Version: 0.0
+ * Version: 0.1
  */
 
-/* includes */
+/* includes */ //clean these out when done
 #include <avr/interrupts.h>
+#include <string.h>
 #include "compass.h"
-
-//"                " use for character length
 
 bool Data;
 
@@ -26,8 +25,6 @@ int main() {
 
     //startup
     //display welcome screen
-    //"Compass Ver X.Y "
-    //" -Alex Becker-  "
 
     Data = FALSE;
     gei(); /* Enable interrupts */
