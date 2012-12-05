@@ -50,7 +50,7 @@ int main() {
     delay_ms(STARTUP_DELAY);
     //Display "getting data"
 
-    gei(); /* Enable interrupts */
+    sei(); /* Enable interrupts */
 
     /* Main loop */
     while(TRUE) {
@@ -64,7 +64,7 @@ int main() {
             Degrees = Calculate2dHeading(MagX, MagY);
             //Update LCD
 
-            gei(); /* Re-enable interrupts */
+            sei(); /* Re-enable interrupts */
         }
     }
 
