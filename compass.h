@@ -36,5 +36,11 @@
 
 /* Function prototypes */
 //TODO fill this out
+//writeI2c
+//readI2c
+
+/**
+*/
+writeLCD(const char* str);
 
 #endif /* __COMPASS_H */

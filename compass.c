@@ -12,6 +12,7 @@
 /* includes */ //clean these out when done
 #include <avr/interrupts.h>
 #include <string.h>
+#include <util/delay.h>
 #include "compass.h"
 
 bool Data;
@@ -22,22 +23,27 @@ ISR(INT0_vect) {
 
 int main() {
     //Variables!
+    Data = FALSE;
+    cli();
 
     //startup
     //display welcome screen
 
-    Data = FALSE;
+    delay_ms(3000); //DEFINE
     gei(); /* Enable interrupts */
 
     /* Main loop */
     while(TRUE) {
         
         /* If there is pending data, process it */
-        if(Data) {
-            cli(); /* Disable interrupts */
+        if(Data) { 
+            /* Disable interrupts */
+            cli();
             //read I2C data
-            //Update LCD 
-            gei(); /* Re-enable interrupts */
+            //Update LCD
+
+            /* Re-enable interrupts */
+            gei();
         }
     }
 
