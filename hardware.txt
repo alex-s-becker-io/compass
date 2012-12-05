@@ -1,0 +1,9 @@
+File for hardware considerations!
+
+Controller: Atmel AVR ATmega328p
+Magnetometer: Still looking, but idea in mind.
+LCD: 16x2 Character LCD
+Mint Tin.
+Mint tin sized proto board (Adafruit)
+wires
+stepdown transformer (because I'm lazy!)
