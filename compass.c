@@ -23,7 +23,12 @@ ISR(INT0_vect) {
 
 int main() {
     //Variables!
+    int16_t mag_x;
+    int16_t mag_y;
+    int16_6 mag_z;
+
     Data = FALSE;
+    
     cli();
 
     //startup
@@ -37,7 +42,7 @@ int main() {
         
         /* If there is pending data, process it */
         if(Data) { 
-            /* Disable interrupts */
+            /* Disable interrupts.  We want the update completely performed. */
             cli();
             //read I2C data
             //Update LCD
