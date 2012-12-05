@@ -21,7 +21,7 @@
 
 #include "compass.h"
 
-unsigned char Data; /* Treated as a boolean */
+boolean Data;
 
 //Pins and Directions
 //SDA

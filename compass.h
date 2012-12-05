@@ -2,6 +2,7 @@
 #define __COMPASS_H
 
 /* Boolean defines */
+typdef unsigned char boolean;
 #define TRUE  1
 #define FALSE 0
 
