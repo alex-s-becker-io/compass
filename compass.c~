@@ -12,7 +12,6 @@
 /* includes */
 #include <avr/interrupts.h>
 #include "compass.h"
-
 //"                " use for character length
 
 bool Data;
