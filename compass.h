@@ -8,7 +8,7 @@
 /* Pin defines */
 //TODO fill this out, may not be needed
 
-/* Direction Strings */
+/* Direction Strings */ //May need to be const char* to play nice with the LCD
 #define NORTH_S "North"
 #define NEE_S   "North North East"
 #define NE_S    "NorthEast"
@@ -29,18 +29,19 @@
 #define NAME    " -Alex Becker-"
 
 /* Directional defines */
-#define CORRECTION 0 /* Corrects the heading */
+#define OFFSET 0 /* Corrects the heading */
 //Define the ranges here, figure out how to make this work.
 #define NORTH_LOWER 347.5 /* -12.5 */
 #define NORTH_UPPER  12.5
 
+/* Other defines */
+#define STARTUP_DELAY 3000
+
 /* Function prototypes */
 //TODO fill this out
 //writeI2c
-//readI2c
-
-/**
-*/
-writeLCD(const char* str);
+//readI2c 
+float Calculate2dHeading(int16_t X, int16_t Y);
+//writeLCD(const char* str);
 
 #endif /* __COMPASS_H */
