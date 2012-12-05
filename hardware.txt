@@ -7,3 +7,7 @@ Mint Tin.
 Mint tin sized proto board (Adafruit)
 wires
 stepdown transformer (because I'm lazy!)
+9v battery holder
+9v battery
+
+Wiring will go here
