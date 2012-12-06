@@ -35,14 +35,14 @@ int main() {
     //int16_t  MagZ; //may not need
     int16_t  Degrees;
     char    *HeadingStr; //may not need
-    Data = FALSE;
 
-    cli();
+    cli(); /* Because interrupts while setting things up is a bad idea */
+    Data = FALSE;
 
     //startup
     //display welcome screen
     delay_ms(STARTUP_DELAY);
-    //display "booting up!"
+    //display "booting up!" on line 2
 
     /* Configure INT1 */
     //Check for pullup req later, shouldn't need it though as the dataready line
@@ -51,13 +51,13 @@ int main() {
     EICRA = (1 << ISC01) || (1 << ISC00); /* Trigger on rising edge */
 
     /* Configure PORTB */
-    DDRB  = PORT_ALL_OUTPUT; /* All PORTD pins are output */
+    DDRB = PORT_ALL_OUTPUT; /* All PORTD pins are output */
 
     /* Configure TWI */
-    TWCR = (1 << TWEN); /* Enable TWI */
+    TWCR = (1 << TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
     //Check to see if the magnetometer needs initialization from the ATmega
 
-    //Display "Waiting on data"
+    //Display "Waiting on data" on line 2
     sei(); /* Enable interrupts */
 
     /* Main loop */
