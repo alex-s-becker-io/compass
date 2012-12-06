@@ -47,13 +47,10 @@ int main() {
     /* Configure INT1 */
     //Check for pullup req later, shouldn't need it though as the dataready line
     //will probably output a high value to indicate data ready
-    PORTD = 0; /* Disable pullups on PORTD */
-    DDRD  = 0; /* Configure PORTD as input */
     EIMSK = (1 << INT0); /* Enable the INT0 interrupt */
     EICRA = (1 << ISC01) || (1 << ISC00); /* Trigger on rising edge */
 
     /* Configure PORTB */
-    PORTB = PORT_ALL_HIGH; /* Set PORTD to output high */
     DDRB  = PORT_ALL_OUTPUT; /* All PORTD pins are output */
 
     /* Configure TWI */
