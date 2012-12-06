@@ -24,8 +24,10 @@
 boolean Data;
 
 //Pins and Directions
-//SDA
-//SCL
+//SDA PC4
+//SCL PC5
+//INT0 PD2
+//PORTB To LCD/LED
 
 /* The DataReady pin is hooked up to INT0 on the 328p */
 //Mind you if I do use a different magnetometer, this may be moot, but it should have one... blah
@@ -34,22 +36,34 @@ ISR(INT0_vect) {
 }
 
 int main() {
-    //Variables!
     int16_t  MagX;
     int16_t  MagY;
-    int16_t  MagZ; //may not need
-    float    Degrees; //may end up being int16_t to save space
-    char    *HeadingStr;
-
+    //int16_t  MagZ; //may not need
+    int16_t  Degrees;
+    char    *HeadingStr; //may not need
     Data = FALSE;
-    
+
     cli();
 
     //startup
     //display welcome screen
     delay_ms(STARTUP_DELAY);
-    //Display "getting data"
+    //display "booting up!"
 
+    /* Configure INT0 */ //Check for pullup req later
+    PORTD = 0; /* Disable pullups on PORTD */
+    DDRD  = 0; /* Configure PORTD as input */
+    EIMSK = (1 << INT0); /* Enable the INT0 interrupt */
+    EICRA = (1 << ISC01) || (1 << ISC00); /* Trigger on rising edge */
+
+    /* Configure PORTB */
+    PORTB = 0xFF; /* Set PORTD to output high */ //DEFINE THESE
+    DDRB  = 0xFF; /* All PORTD pins are output */
+
+    /* Configure TWI */
+    TWCR = (1 << TWEN); /* Enable TWI */
+
+    //Display "Waiting on data"
     sei(); /* Enable interrupts */
 
     /* Main loop */
@@ -71,12 +85,10 @@ int main() {
     return 0;
 }
 
-//Could possibly return a rounded int16_t, do I really need float precision?
-int16_t Calculate2dHeading(int16_t X, int16_t Y) {
-    double TempResult = 0.0;
-
-    //Perform calcs here, yay trig, gonna use tangent
-    TempResult = tan(X / Y);
-    TempResult = (TempResult * 180) / M_PI; /* Convert the result to degrees */ //Define!
-    return (int16_t)TempResult;
+int16_t Calculate2dHeading(int16_t X, int16_t Y) { 
+    double TempResult = tan(X / Y);
+    TempResult = TempResult * (180 / M_PI); /* Convert the result to degrees */ //Define!
+    if(TempResult >= 360)
+        TempResult -= 360; /* Adjust, shouldn't be an issue */
+    return round(TempResult);
 }
