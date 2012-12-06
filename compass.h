@@ -7,6 +7,9 @@ typdef unsigned char boolean;
 #define FALSE 0
 
 /* Pin defines */
+#define PORT_ALL_HIGH   0xff
+#define PORT_ALL_OUTPUT 0xff
+#define PORT_ALL_PULLUP 0xff
 //may not need
 
 /* Direction Strings */
@@ -46,7 +49,7 @@ typdef unsigned char boolean;
 
 /* Function prototypes */
 //writeI2c
-//readI2c 
+//readI2c
 int16_t Calculate2dHeading(int16_t X, int16_t Y);
 void writeLCD(const char* str, uint8_t line);
 

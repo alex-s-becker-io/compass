@@ -10,7 +10,6 @@
  */
 
 /* #includes */
-//clean these out when done
 #include <avr/interrupts.h>
 #include <avr/io.h>
 #include <math.h>
@@ -23,14 +22,9 @@
 
 boolean Data;
 
-//Pins and Directions
-//SDA PC4
-//SCL PC5
-//INT0 PD2
-//PORTB To LCD/LED
-
 /* The DataReady pin is hooked up to INT0 on the 328p */
-//Mind you if I do use a different magnetometer, this may be moot, but it should have one... blah
+//Mind you if I do use a different magnetometer, this may be moot, but it should
+//have one... blah.  Interrupts are nice to have rather than blindly polling
 ISR(INT0_vect) {
     Data = TRUE;
 }
@@ -50,18 +44,21 @@ int main() {
     delay_ms(STARTUP_DELAY);
     //display "booting up!"
 
-    /* Configure INT0 */ //Check for pullup req later
+    /* Configure INT1 */
+    //Check for pullup req later, shouldn't need it though as the dataready line
+    //will probably output a high value to indicate data ready
     PORTD = 0; /* Disable pullups on PORTD */
     DDRD  = 0; /* Configure PORTD as input */
     EIMSK = (1 << INT0); /* Enable the INT0 interrupt */
     EICRA = (1 << ISC01) || (1 << ISC00); /* Trigger on rising edge */
 
     /* Configure PORTB */
-    PORTB = 0xFF; /* Set PORTD to output high */ //DEFINE THESE
-    DDRB  = 0xFF; /* All PORTD pins are output */
+    PORTB = PORT_ALL_HIGH; /* Set PORTD to output high */
+    DDRB  = PORT_ALL_OUTPUT; /* All PORTD pins are output */
 
     /* Configure TWI */
     TWCR = (1 << TWEN); /* Enable TWI */
+    //Check to see if the magnetometer needs initialization from the ATmega
 
     //Display "Waiting on data"
     sei(); /* Enable interrupts */
@@ -82,10 +79,10 @@ int main() {
         }
     }
 
-    return 0;
+    return 0; /* If this is ever called, I don't even know anymore */
 }
 
-int16_t Calculate2dHeading(int16_t X, int16_t Y) { 
+int16_t Calculate2dHeading(int16_t X, int16_t Y) {
     double TempResult = tan(X / Y);
     TempResult = TempResult * (180 / M_PI); /* Convert the result to degrees */ //Define!
     if(TempResult >= 360)
