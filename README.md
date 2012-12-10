@@ -1,4 +1,9 @@
-Code for my compass project
+Code for Alexandria Becker's compass project
+
+Ideas
+---
+* Use a pot to calibrate north more precisely
+* Display: Line 1 is the direction in english, line 2 is the degrees (and maybe speed?)
 
 License
 -------
