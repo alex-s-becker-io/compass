@@ -20,6 +20,7 @@
 
 #include "compass.h"
 
+/* Global Variables */
 boolean Data;
 
 /* The DataReady pin is hooked up to INT0 on the 328p */
@@ -30,6 +31,7 @@ ISR(INT0_vect) {
 }
 
 int main() {
+    int16_t  Correction = OFFSET;
     int16_t  MagX;
     int16_t  MagY;
     //int16_t  MagZ; //may not need
@@ -44,18 +46,21 @@ int main() {
     delay_ms(STARTUP_DELAY);
     //display "booting up!" on line 2
 
-    /* Configure INT1 */
-    //Check for pullup req later, shouldn't need it though as the dataready line
-    //will probably output a high value to indicate data ready
-    EIMSK = (1 << INT0); /* Enable the INT0 interrupt */
-    EICRA = (1 << ISC01) || (1 << ISC00); /* Trigger on rising edge */
+    /* Configure INT0 */
+    EIMSK |= (1 << INT0); /* Enable the INT0 interrupt */
+    EICRA |= (1 << ISC01) | (1 << ISC00); /* Trigger on rising edge */
+
+    /* Configure PD4 */
+    DDRD &= ~(1 << PD4); /* Configure PD4 as an input */
+    PORTD |= (1 << PD4); /* Pullup PD4 */
 
     /* Configure PORTB */
-    DDRB = PORT_ALL_OUTPUT; /* All PORTD pins are output */
+    DDRB = PORT_ALL_OUTPUT; /* All PORTD pins are output for the LCD screen */
 
     /* Configure TWI */
     TWCR = (1 << TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
     //Check to see if the magnetometer needs initialization from the ATmega
+    //will need init
 
     //Display "Waiting on data" on line 2
     sei(); /* Enable interrupts */
@@ -69,20 +74,40 @@ int main() {
 
             //read I2C data
             //calculate heading
-            Degrees = Calculate2dHeading(MagX, MagY);
+            Degrees = CalculateDegHeading(MagX, MagY) + Correction;
             //Update LCD
 
             sei(); /* Re-enable interrupts */
+        } 
+        //Read in pin from switch
+        //I'm such a hypocrite, but this is a bit easier to deal with given that
+        //it won't be so intermittent
+        if(!(PORTD & (1 << PD4))) {
+            cli();
+            Correction = Calibrate();
+            sei();
         }
     }
 
     return 0; /* If this is ever called, I don't even know anymore */
 }
 
-int16_t Calculate2dHeading(int16_t X, int16_t Y) {
+int16_t CalculateDegHeading(int16_t X, int16_t Y) {
     double TempResult = tan(X / Y);
     TempResult = TempResult * (180 / M_PI); /* Convert the result to degrees */ //Define!
     if(TempResult >= 360)
         TempResult -= 360; /* Adjust, shouldn't be an issue */
     return round(TempResult);
+}
+
+/* Return the calibration value */
+int16_t Calibrate() {
+    //Display CALIB
+    //start timer
+    while(!(PORTD & (1 << PD4))) { 
+        //Pull off the ADC
+        //on timer display HURRY UP GARRUS (3 seconds)
+        //lower line is the offset
+    }
+    //Display "waiting on data"
 }
