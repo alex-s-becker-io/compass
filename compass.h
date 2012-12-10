@@ -22,6 +22,7 @@ typdef unsigned char boolean;
 #define SW_S    "Southwest"
 #define WEST_S  "West"
 #define NW_S    "Northwest"
+#define DIRECTION "Degrees:     "
 
 /* Bootup strings */
 #define TITLE   "Compass Ver X.Y"
@@ -31,8 +32,7 @@ typdef unsigned char boolean;
 
 /* Calibration strings */
 #define CALIB   "Calibrating"
-#define GARRUS  "Hurry up, Garrus"
-
+#define GARRUS  "Hurry up, Garrus" 
 
 /* Directional defines */
 #define OFFSET 0 /* Corrects the heading so that a reading of OFFSET is North */ //Probably will be 90
@@ -46,14 +46,10 @@ typdef unsigned char boolean;
 // 248 <= W  <= 292
 // 293 <= NW <= 337
 
-/* LCD Defines */
-//will need adjusting as I get deeper into the project
-#define LINE_ONE 0 //1
-#define LINE_TWO 1 //2
-
 /* Other defines */
 //2 or 3 seconds?  Figure out later
 #define STARTUP_DELAY 2000 /* Delay between startup screens */
+#define BASE_TEN 10
 
 /* Function prototypes */
 boolean WriteI2c(uint16_t Addr, uint16_t Cmd, void* Data); //Will need adjusting, just a prototype atm

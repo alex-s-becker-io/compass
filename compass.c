@@ -19,6 +19,7 @@
 #include <util/twi.h>
 
 #include "compass.h"
+#include "Lcd.h"
 
 /* Global Variables */
 boolean Data;
@@ -34,9 +35,9 @@ int main() {
     int16_t  Correction = OFFSET;
     int16_t  MagX;
     int16_t  MagY;
-    //int16_t  MagZ; //may not need
+    int16_t  MagZ; //may not need
     int16_t  Degrees;
-    char    *HeadingStr; //may not need
+    char    *Heading; //may not need
 
     cli(); /* Because interrupts while setting things up is a bad idea */
     Data = FALSE;
@@ -50,12 +51,15 @@ int main() {
     EIMSK |= (1 << INT0); /* Enable the INT0 interrupt */
     EICRA |= (1 << ISC01) | (1 << ISC00); /* Trigger on rising edge */
 
+    /* Configure PD0 and PD1 */
+    DDRD |= ((1 << PD0) | (1 << PD1));
+
     /* Configure PD4 */
     DDRD &= ~(1 << PD4); /* Configure PD4 as an input */
     PORTD |= (1 << PD4); /* Pullup PD4 */
 
     /* Configure PORTB */
-    DDRB = PORT_ALL_OUTPUT; /* All PORTD pins are output for the LCD screen */
+    DDRB = (uint8_t)(-1); /* All PORTD pins are output for the LCD screen */
 
     /* Configure TWI */
     TWCR = (1 << TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
@@ -75,8 +79,11 @@ int main() {
             //read I2C data
             //calculate heading
             Degrees = CalculateDegHeading(MagX, MagY) + Correction;
+            Heading = malloc(sizeof(Degrees) + 1);
+            Heading = utoa(Degrees, Heading, BASE_TEN);
             //Update LCD
 
+            free(Heading); /* Memleaks are bad, mmkay? */
             sei(); /* Re-enable interrupts */
         } 
         //Read in pin from switch
@@ -102,10 +109,12 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
 
 /* Return the calibration value */
 int16_t Calibrate() {
+    int16_t CalibrationOffset = 0;
     //Display CALIB
     //start timer
     while(!(PORTD & (1 << PD4))) { 
         //Pull off the ADC
+        //5k (middle) = offset of 0
         //on timer display HURRY UP GARRUS (3 seconds)
         //lower line is the offset
     }
