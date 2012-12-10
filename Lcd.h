@@ -16,5 +16,6 @@
 
 /* Prototypes */
 void WriteLine(const char* Str, unit8_t Line);
+void InitLcd();
 
 #endif /* __LCD_H */
