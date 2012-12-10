@@ -14,25 +14,25 @@ typdef unsigned char boolean;
 
 /* Direction Strings */
 //May need to be const char* to play nice with the LCD
-#define NORTH_S "North"
-#define NE_S    "Northeast"
-#define EAST_S  "East"
-#define SE_S    "Southeast"
-#define SOUTH_S "South"
-#define SW_S    "Southwest"
-#define WEST_S  "West"
-#define NW_S    "Northwest"
+#define NORTH_S   "North"
+#define NE_S      "Northeast"
+#define EAST_S    "East"
+#define SE_S      "Southeast"
+#define SOUTH_S   "South"
+#define SW_S      "Southwest"
+#define WEST_S    "West"
+#define NW_S      "Northwest"
 #define DIRECTION "Degrees:     "
 
 /* Bootup strings */
-#define TITLE   "Compass Ver X.Y"
-#define NAME    " -Alex Becker-"
-#define BOOTUP  "Booting up"
-#define WAITING "Waiting on data"
+#define TITLE     "Compass Ver X.Y"
+#define NAME      " -Alex Becker-"
+#define BOOTUP    "Booting up"
+#define WAITING   "Waiting on data"
 
 /* Calibration strings */
-#define CALIB   "Calibrating"
-#define GARRUS  "Hurry up, Garrus" 
+#define CALIB     "Calibrating"
+#define GARRUS    "Hurry up, Garrus" 
 
 /* Directional defines */
 #define OFFSET 0 /* Corrects the heading so that a reading of OFFSET is North */ //Probably will be 90

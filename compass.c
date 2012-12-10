@@ -37,7 +37,7 @@ int main() {
     int16_t  MagY;
     int16_t  MagZ; //may not need
     int16_t  Degrees;
-    char    *Heading; //may not need
+    char    *HeadingStr; //may not need
 
     cli(); /* Because interrupts while setting things up is a bad idea */
     Data = FALSE;
@@ -79,8 +79,8 @@ int main() {
             //read I2C data
             //calculate heading
             Degrees = CalculateDegHeading(MagX, MagY) + Correction;
-            Heading = malloc(sizeof(Degrees) + 1);
-            Heading = utoa(Degrees, Heading, BASE_TEN);
+            HeadingStr = malloc(sizeof(Degrees) + 1);
+            HeadingStr = utoa(Degrees, HeadingStr, BASE_TEN);
             //Update LCD
 
             free(Heading); /* Memleaks are bad, mmkay? */
