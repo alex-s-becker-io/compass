@@ -3,9 +3,11 @@
 #include <util/delay.h>
 
 void InitLcd() {
-    PORTD &= ~(1 << PD0); /* Make sure RS is set to 0 */ 
+    PORTD &= ~(1 << PD0); /* Make sure RS is set to 0 */
     
-    //ADD IN DELAYS (and comments)
+    //sofware init here!
+    
+    //Triggering Enable (and comments)
     PORTB = CLEAR_DISPLAY;
     delay_ms(200);
     
