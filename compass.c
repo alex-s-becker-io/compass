@@ -83,7 +83,7 @@ int main() {
             HeadingStr = utoa(Degrees, HeadingStr, BASE_TEN);
             //Update LCD
 
-            free(Heading); /* Memleaks are bad, mmkay? */
+            free(HeadingStr); /* Memleaks are bad, mmkay? */
             sei(); /* Re-enable interrupts */
         } 
         //Read in pin from switch
