@@ -55,7 +55,6 @@ typdef unsigned char boolean;
 boolean WriteI2c(uint16_t Addr, uint16_t Cmd, void* Data); //Will need adjusting, just a prototype atm
 boolean ReadI2c(uint16_t Addr, uint16_t Cmd, void* Data);
 int16_t CalculateDegHeading(int16_t X, int16_t Y);
-void writeLCD(const char* str, uint8_t line);
 int16_t Calibrate();
 
 #endif /* __COMPASS_H */
