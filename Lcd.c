@@ -3,10 +3,12 @@
 
 void InitLcd() {
     PORTD &= ~(1 << PD0); /* Make sure RS is set to 0 */ 
+    
+    //ADD IN DELAYS (and comments)
     PORTB = CLEAR_DISPLAY;
-    PORTB = ENTRY_MODE | 0x02;
-    PORTB = DISPLAY_CTRL | 0x04;
-    PORTB = FUNCTION_SET | 0x1C;
+    PORTB = ENTRY_MODE | 0x02; /* Set the entry mode to */
+    PORTB = DISPLAY_CTRL | 0x04; /* */
+    PORTB = FUNCTION_SET | 0x1C; /* */
 }
 
 void WriteLine(const char* Str, unit8_t Line) {
