@@ -1,11 +1,6 @@
 #ifndef __COMPASS_H
 #define __COMPASS_H
 
-/* Boolean defines */
-typdef unsigned char boolean;
-#define TRUE  1
-#define FALSE 0
-
 /* Pin defines */
 #define PORT_ALL_HIGH   0xff
 #define PORT_ALL_OUTPUT 0xff
@@ -52,8 +47,8 @@ typdef unsigned char boolean;
 #define BASE_TEN 10
 
 /* Function prototypes */
-boolean WriteI2c(uint16_t Addr, uint16_t Cmd, void* Data); //Will need adjusting, just a prototype atm
-boolean ReadI2c(uint16_t Addr, uint16_t Cmd, void* Data);
+boolean WriteI2c(uint8_t Addr, uint8_t Cmd, void* Data); //Will need adjusting, just a prototype atm
+boolean ReadI2c(uint8_t Addr, uint8_t Cmd, void* Data);
 int16_t CalculateDegHeading(int16_t X, int16_t Y);
 int16_t Calibrate();
 
