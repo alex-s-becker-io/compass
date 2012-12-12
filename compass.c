@@ -101,10 +101,20 @@ int main() {
 }
 
 int16_t CalculateDegHeading(int16_t X, int16_t Y) {
-    double TempResult = tan(X / Y);
-    TempResult = TempResult * (180 / M_PI); /* Convert the result to degrees */ //Define!
+    double TempResult;
+    if(X == 0 && Y >= 0)
+        return 0;
+    else if (X == 0 && Y < 0)
+        return 180;
+    
+    TempResult = atan2(Y, X);
+    TempResult = -TempResult * (180 / M_PI); /* Convert the result to degrees */ //Define!
+    
+    /* Correct the result */
     if(TempResult >= 360)
         TempResult -= 360; /* Adjust, shouldn't be an issue */
+    else if(TempResult < 360)
+        TempResult += 360; /* Convert to a positive degree */
     return round(TempResult);
 }
 
