@@ -20,6 +20,7 @@
 
 #include "compass.h"
 #include "Lcd.h"
+#include "boolean.h"
 
 /* Global Variables */
 boolean Data;
