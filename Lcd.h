@@ -1,21 +1,44 @@
 #ifndef __LCD_H
 #define __LCD_H
 
-#define CLEAR_DISPLAY 0x01
-#define RETURN_HOME   0x02
-#define ENTRY_MODE    0x04
-#define DISPLAY_CTRL  0x08
-#define DISPLAY_SHIFT 0x10
-#define FUNCTION_SET  0x20
-#define SET_CGRAM     0x40
-#define SET_CURSOR    0x80
+/* Command instructions */
+#define CLEAR_DISPLAY   0x01 /* Clears the display */
+#define RETURN_HOME     0x02 /* Returns to the top left position on the screen */
+#define ENTRY_MODE_SET  0x04 /* Sets the method in which new chars appear */
+#define DISPLAY_CTRL    0x08
+#define DISPLAY_SHIFT   0x10
+#define FUNCTION_SET    0x20
+#define SET_CGRAM_ADDR  0x40
+#define SET_CURSOR_ADDR 0x80
+
+/* Entry mode set defines */
+#define EMS_CURSOR_DIRECTION 0x02 /* Setting incriments the cursor position */
+#define EMS_SHIFT_DISPLAY    0x01 /* Shift the display */
+
+/* Display on/off control defines */
+#define DC_DISPLAY_ON   0x04 /* Turns the display on */
+#define DC_CURSOR_ON    0x02 /* Display the cursor */
+#define DC_CURSOR_BLINK 0x01 /* Makes the cursor blink */
+
+/* Cursor/Display shift defines */
+#define DS_SHIFT_DISPLAY 0x80
+#define DS_SHIFT_RIGHT   0x40
+
+/* Function set defines */
+#define FS_EIGHT_BIT 0x10 /* Data is sent over 8 bits */
+#define FS_TWO_LINES 0x08 /* The screen has two lines */
+#define FS_FONT_SIZE 0x04 /* Use 5x10 font */
+
+/* Other defines */
+#define BUSY_FLAG 0x80 /* Active while processing command */
 
 /* Line Defines */
+//Make these 0x00 and 0x40?
 #define LINE_ONE 0
 #define LINE_TWO 1
 
 /* Prototypes */
-void WriteLine(const char* Str, uint8_t Line);
+void WriteLine(const char* Str, uint8_t Line); // Maybe make WriteString ?
 void WriteChar(const uint8_t Byte, uint8_t Line, uint8_t pos);
 void InitLcd();
 
