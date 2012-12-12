@@ -15,7 +15,8 @@
 #define LINE_TWO 1
 
 /* Prototypes */
-void WriteLine(const char* Str, unit8_t Line);
+void WriteLine(const char* Str, uint8_t Line);
+void WriteChar(const uint8_t Byte, uint8_t Line, uint8_t pos);
 void InitLcd();
 
 #endif /* __LCD_H */
