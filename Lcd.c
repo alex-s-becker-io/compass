@@ -3,6 +3,8 @@
 #include <string.h>
 #include <util/delay.h>
 
+//TODO impliment busywait flag, timing ftw!
+
 /* Helper function to send an individual byte to the LCD */
 void SendByte(uint8_t Data, boolean Command) {
     if(Command)
