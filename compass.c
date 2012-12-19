@@ -102,10 +102,11 @@ int main() {
 
 int16_t CalculateDegHeading(int16_t X, int16_t Y) {
     double TempResult;
-    if(X == 0 && Y >= 0)
+    //May not needed due to how atan is handled
+    /*if(X == 0 && Y >= 0)
         return 0;
     else if (X == 0 && Y < 0)
-        return 180;
+        return 180;*/
     
     TempResult = atan2(Y, X);
     TempResult = -TempResult * (180 / M_PI); /* Convert the result to degrees */ //Define!
