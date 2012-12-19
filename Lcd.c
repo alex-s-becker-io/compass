@@ -1,4 +1,5 @@
 #include "Lcd.h"
+#include <avr/io.h>
 #include "boolean.h"
 #include <string.h>
 #include <util/delay.h>
