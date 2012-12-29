@@ -1,6 +1,11 @@
 #ifndef __LCD_H
 #define __LCD_H
 
+/* Includes */
+#include <stdint.h> 
+#define F_CPU 1000000UL /* CPU speed = 1 MHz */
+#include <util/delay.h>
+
 /* Command instructions */
 #define CLEAR_DISPLAY   0x01 /* Clears the display */
 #define RETURN_HOME     0x02 /* Returns to the top left position on the screen */
@@ -12,7 +17,7 @@
 #define SET_CURSOR_ADDR 0x80
 
 /* Entry mode set defines */
-#define EMS_CURSOR_DIRECTION 0x02 /* Setting incriments the cursor position */
+#define EMS_CURSOR_DIRECTION 0x02 /* Setting increments the cursor position */
 #define EMS_SHIFT_DISPLAY    0x01 /* Shift the display */
 
 /* Display on/off control defines */
