@@ -1,6 +1,12 @@
 #ifndef __COMPASS_H
 #define __COMPASS_H
 
+/* Includes */
+#include "boolean.h"
+
+/* CPU speed define */
+#define F_CPU 1000000UL /* CPU speed = 1 MHz */
+
 /* Pin defines */
 #define PORT_ALL_HIGH   0xff
 #define PORT_ALL_OUTPUT 0xff
@@ -17,7 +23,7 @@
 #define SW_S      "Southwest"
 #define WEST_S    "West"
 #define NW_S      "Northwest"
-#define DIRECTION "Degrees:     "
+#define DIRECTION "Degrees:     " //Macro?
 
 /* Bootup strings */
 #define TITLE     "Compass Ver X.Y"
@@ -44,7 +50,7 @@
 /* Other defines */
 //2 or 3 seconds?  Figure out later
 #define STARTUP_DELAY 2000 /* Delay between startup screens */
-#define BASE_TEN 10
+#define BASE_TEN 10 /* Used for itoa to convert the direction int to a string */
 
 /* Function prototypes */
 boolean WriteI2c(uint8_t Addr, uint8_t Cmd, void* Data); //Will need adjusting, just a prototype atm
