@@ -2,7 +2,7 @@
 #define __BOOLEAN_H
 
 /* Boolean defines */
-typdef unsigned char boolean;
+typedef unsigned char boolean;
 #define TRUE  1
 #define FALSE 0
 
