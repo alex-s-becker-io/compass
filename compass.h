@@ -6,6 +6,7 @@
 
 /* CPU speed define */
 #define F_CPU 1000000UL /* CPU speed = 1 MHz */
+#include <util/delay.h>
 
 /* Pin defines */
 #define PORT_ALL_HIGH   0xff

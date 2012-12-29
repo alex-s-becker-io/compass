@@ -24,8 +24,6 @@
 #include "Lcd.h"
 #include "boolean.h"
 
-#include <util/delay.h>
-
 /* Global Variables */
 boolean Data; /* Data is ready to be read */
 
