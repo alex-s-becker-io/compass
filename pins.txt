@@ -1,0 +1,35 @@
+Pin assignents:
+
+ATmega328p:
+Pin  Port  PX#  Function
+  1     C    6  RESET (inverse logic)
+  2     D    0  R/S
+  3     D    1  Enable
+  4     D    2  INT0
+  5     D    3  R/W
+  6     D    4  Calibration
+  7   N/A  N/A  Vcc (+5V)
+  8   N/A  N/A  GND
+  9     B    6  DB6
+ 10     B    7  DB7
+ 11     D    5  N/C
+ 12     D    6  N/C
+ 13     D    7  N/C
+ 14     B    0  DB0
+ 15     B    1  DB1
+ 16     B    2  DB2
+ 17     B    3  DB3
+ 18     B    4  DB4
+ 19     B    5  DB5
+ 20   N/A  N/A  AVcc
+ 21   N/A  N/A  ARef 
+ 22   N/A  N/A  GND
+ 23     C    0  ADC0
+ 24     C    1  N/C
+ 25     C    2  N/C
+ 26     C    3  N/C
+ 27     C    4  SDA
+ 28     C    5  SCL
+
+LED:
+
