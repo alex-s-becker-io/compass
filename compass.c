@@ -22,104 +22,98 @@
 
 #include "compass.h"
 #include "Lcd.h"
-#include "boolean.h"
+//#include "boolean.h"
 
 /* Global Variables */
-boolean Data; /* Data is ready to be read */
+boolean DataReady; /* Data is ready to be read */
 
 /* The DataReady pin is hooked up to INT0 on the 328p */
-//Mind you if I do use a different magnetometer, this may be moot, but it should
-//have one... blah.  Interrupts are nice to have rather than blindly polling
 ISR(INT0_vect) {
-    Data = TRUE;
+    DataReady = TRUE;
 }
 
-/* It's the main function for the program, what more do you need to know? */
-int main() {
-    int16_t  Correction = OFFSET;
-    int16_t  MagX = 0;
-    int16_t  MagY = 0;
-    //int16_t  MagZ; //may not need
-    int16_t  Degrees;
-    uint8_t  SregSave;
-    char    *HeadingStr; //may not need
+/* Configure the pins on the ATmega328p */
+void InitDevice() {
+    /* LCD pins */
+    /* All PORTB pins are data pins for the LCD screen */
+    DDRB = (uint8_t)(-1);
 
-    cli(); /* Because interrupts while setting things up is a bad idea */
-    Data = FALSE;
+    /* PDO, PD1, and PD3 are all used as control pins for the LCD screen.
+     * PD0 is used as the R/S pin, which determines whether the LCD is getting a
+     * command or a character
+     * PD1 is the Enable pin, which signals the LCD to read the data pins
+     * PD3 is the R/W Pin which is used to activate the Busy flag on the LCD and
+     * is used for timing
+     */
+    DDRD |= ((1 << PD0) | (1 << PD1) | (1 << PD3));
 
-    //startup
-    //display welcome screen
+    InitLcd();
+
+    /* Display title screen */
+    WriteString(TITLE, LCD_LINE_ONE);
+    WriteString(NAME, LCD_LINE_TWO);
     _delay_ms(STARTUP_DELAY);
-    //display "booting up!" on line 2
 
+    WriteString(BOOTUP, LCD_LINE_TWO);
+
+    /* Calibration circuit */
+    /* PD4 is used to determine if the calibration circuit is active or not */
+    DDRD &= ~(1 << PD4); /* Configure PD4 as an input */
+    PORTD |= (1 << PD4); /* Pullup PD4 */ 
+
+    /* Configure the ADC */
+
+    /* Magnetometer set up */
     /* INT0 is attached to the DataReady pin on the magnometer, and will be used
      * to signal that data is ready to be read (obviously)
      */
     EIMSK |= (1 << INT0); /* Enable the INT0 interrupt */
     EICRA |= (1 << ISC01) | (1 << ISC00); /* Trigger on rising edge */
 
-    /* Configure PD0 and PD1 */
-    //TODO The other pin, R/W? is on PD as well
-    //TODO globalize the LCD pins?
-    /* PDO, PD1, and PDX are all used as the control pins for the LCD screen.
-     * PD0 is used as the R/S pin, which determines whether the LCD is getting a
-     * command or a character
-     * PD1 is the Enable pin, which signals the LCD to read the data pins
-     * PDX is the R/W Pin which is used to activate the Busy flag on the LCD and
-     * is used for timing
-     */
-    DDRD |= ((1 << PD0) | (1 << PD1));
-
-    /* PD4 is used to determine if the calibration circuit is active or not */
-    DDRD &= ~(1 << PD4); /* Configure PD4 as an input */
-    PORTD |= (1 << PD4); /* Pullup PD4 */
-
-    /* All PORTB pins are data pins for the LCD screen */
-    DDRB = (uint8_t)(-1);
-
-    /* Configure the ADC */
-
     /* Configure TWI */
     TWCR = (1 << TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
     //Check to see if the magnetometer needs initialization from the ATmega
     //will need init
-
     //Display "Waiting on data" on line 2
+}
+
+/* It's the main function for the program, what more do you need to know? */
+int main() {
+    int16_t  Degrees = 0;
+    uint8_t  SregSave;
+    int16_t  Correction = OFFSET;
+
+    Degrees = Degrees; //Because it's a warning otherwise 
+    DataReady = FALSE; 
+
+    cli(); /* Because interrupts while setting things up is a bad idea */
+    InitDevice();
     sei(); /* Enable interrupts */
+
+    while(!DataReady); /* Wait till we get data */
 
     /* Main loop */
     while(TRUE) {
         /* If there is pending data, process it */
-        if(Data) {
+        if(DataReady) {
             SregSave = SREG; /* Preserve the status register */
             cli(); /* We want the update completely performed without interruptions */
-            Data = FALSE;
+            DataReady = FALSE;
+            //Hand off to a function
 
-            //read I2C data
-            //calculate heading
-            Degrees = CalculateDegHeading(MagX, MagY) + Correction;
-            HeadingStr = malloc(sizeof(Degrees) + 1);
-            HeadingStr = utoa(Degrees, HeadingStr, BASE_TEN); /* Convert the degrees to a string */
-            //Update LCD
+            Degrees = ProcessData(Correction);
 
-            free(HeadingStr); /* Memleaks are bad, mmkay? */
-            //sei(); /* Re-enable interrupts */
             SREG = SregSave; /* Restore the status register */
         } 
-        //Read in pin from switch
-        //I'm such a hypocrite, but this is a bit easier to deal with given that
-        //it won't be so intermittent
-        /* Check to so see if there is a low signal from the calibration circuit */
-        if(!(PORTD & (1 << PD4))) {
-            /* We don't need SREG preservation, technically doing it wrong but I'm
-             * lazy here dammit!
-             */
-            EIMSK &= ~(1 << INT0); /* disable the INT0 interrupt */
-            Correction = Calibrate();
-            EIMSK |= (1 << INT0); /* Enable the INT0 interrupt */
-        }
-    }
 
+        if(!(PORTD & (1 << PD4))) {
+            /* Check to so see if there is a low signal from the calibration circuit */
+            Correction = Calibrate(Correction, Degrees);
+        } else {
+            /* If we aren't calibrating, display the direction and such */
+            //WriteString(("Degrees: %d", Degrees), LCD_LINE_TWO); //TODO fix this!
+        } 
+    }
     return 0; /* If this is ever called, I don't even know anymore */
 }
 
@@ -139,7 +133,7 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
         TempResult -= 360; /* Adjust, shouldn't be an issue */
     else if(TempResult < 360)
         TempResult += 360; /* Convert to a positive degree */
-    return round(TempResult);
+    return floor(TempResult);
 }
 
 /* Return the calibration value */
@@ -156,11 +150,23 @@ int16_t Calibrate() {
 
         AdcValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
 
-        AdcValue -= 0x1f; /* a result of 0x1f refers to the pot pointing straight up and down */
+        AdcValue -= 0x100; /* a result of 0x100 refers to the pot pointing straight up and down */
         //5k (middle) = offset of 0
         //on timer display HURRY UP GARRUS (3 seconds)
         //lower line is the offset
     }
     //Display "waiting on data"
     return CalibrationOffset;
+}
+
+int16_t ProcessData(int16_t Correction) {
+    int16_t  MagX = 0;
+    int16_t  MagY = 0;
+    int16_t  MagZ = 0; //may not need
+
+    MagZ = MagZ; //Warning killer hack YOU BETTER REMOVE THIS LATER ON FOOLE
+
+    //read I2C data
+    //calculate heading
+    return CalculateDegHeading(MagX, MagY) + Correction;
 }

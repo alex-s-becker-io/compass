@@ -2,9 +2,7 @@
 #define __COMPASS_H
 
 /* Includes */
-#include "boolean.h"
-
-/* CPU speed define */
+#include "boolean.h" 
 #define F_CPU 1000000UL /* CPU speed = 1 MHz */
 #include <util/delay.h>
 
@@ -24,7 +22,7 @@
 #define SW_S      "Southwest"
 #define WEST_S    "West"
 #define NW_S      "Northwest"
-#define DIRECTION "Degrees:     " //Macro?
+#define DIRECTION "Degrees: "
 
 /* Bootup strings */
 #define TITLE     "Compass Ver X.Y"
@@ -58,5 +56,7 @@ boolean WriteI2c(uint8_t Addr, uint8_t Cmd, void* Data); //Will need adjusting, 
 boolean ReadI2c(uint8_t Addr, uint8_t Cmd, void* Data);
 int16_t CalculateDegHeading(int16_t X, int16_t Y);
 int16_t Calibrate();
+int16_t ProcessData();
+void InitDevice();
 
 #endif /* __COMPASS_H */

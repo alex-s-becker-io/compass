@@ -17,8 +17,8 @@
 #define SET_CURSOR_ADDR 0x80
 
 /* Entry mode set defines */
-#define EMS_CURSOR_DIRECTION 0x02 /* Setting increments the cursor position */
-#define EMS_SHIFT_DISPLAY    0x01 /* Shift the display */
+#define EMS_INCRIMENT     0x02 /* Setting increments the cursor position */
+#define EMS_SHIFT_DISPLAY 0x01 /* Shift the display */
 
 /* Display on/off control defines */
 #define DC_DISPLAY_ON   0x04 /* Turns the display on */
@@ -38,13 +38,12 @@
 #define BUSY_FLAG 0x80 /* Active while processing command */
 
 /* Line Defines */
-//Make these 0x00 and 0x40?
-#define LINE_ONE 0
-#define LINE_TWO 1
+#define LCD_LINE_ONE 0x00
+#define LCD_LINE_TWO 0x40
 
 /* Prototypes */
-void WriteLine(const char* Str, uint8_t Line); // Maybe make WriteString ?
-void WriteChar(const uint8_t Byte, uint8_t Line, uint8_t pos);
+void WriteString(const char* Str, uint8_t Pos); // Maybe make WriteString ?
+void WriteChar(const uint8_t Byte, uint8_t pos);
 void InitLcd();
 
 #endif /* __LCD_H */
