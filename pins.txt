@@ -21,7 +21,7 @@ Pin  Port  PX#  Function
  17     B    3  DB3
  18     B    4  DB4
  19     B    5  DB5
- 20   N/A  N/A  AVcc
+ 20   N/A  N/A  AVcc (+5V)
  21   N/A  N/A  ARef 
  22   N/A  N/A  GND
  23     C    0  ADC0
@@ -32,4 +32,20 @@ Pin  Port  PX#  Function
  28     C    5  SCL
 
 LED:
-
+Pin  Func
+  1  GND
+  2  +5v
+  3  N/C
+  4  R/S
+  5  R/W
+  6  En
+  7  DB0
+  8  DB1
+  9  DB2
+ 10  DB3
+ 11  DB4
+ 12  DB5
+ 13  DB6
+ 14  DB7
+ 15  N/C
+ 16  N/C
