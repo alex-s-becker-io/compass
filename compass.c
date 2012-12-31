@@ -45,7 +45,7 @@ void InitDevice() {
      * PD3 is the R/W Pin which is used to activate the Busy flag on the LCD and
      * is used for timing
      */
-    DDRD |= ((1 << PD0) | (1 << PD1) | (1 << PD3));
+    DDRD |= (_BV(PD0) | _BV(PD1) | _BV(PD3));
 
     InitLcd();
 
@@ -58,8 +58,8 @@ void InitDevice() {
 
     /* Calibration circuit */
     /* PD4 is used to determine if the calibration circuit is active or not */
-    DDRD &= ~(1 << PD4); /* Configure PD4 as an input */
-    PORTD |= (1 << PD4); /* Pullup PD4 */ 
+    DDRD &= ~_BV(PD4); /* Configure PD4 as an input */
+    PORTD |= _BV(PD4); /* Pullup PD4 */ 
 
     /* Configure the ADC */
 
@@ -67,11 +67,11 @@ void InitDevice() {
     /* INT0 is attached to the DataReady pin on the magnometer, and will be used
      * to signal that data is ready to be read (obviously)
      */
-    EIMSK |= (1 << INT0); /* Enable the INT0 interrupt */
-    EICRA |= (1 << ISC01) | (1 << ISC00); /* Trigger on rising edge */
+    EIMSK |= _BV(INT0); /* Enable the INT0 interrupt */
+    EICRA |= _BV(ISC01) | _BV(ISC00); /* Trigger on rising edge */
 
     /* Configure TWI */
-    TWCR = (1 << TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
+    TWCR = _BV(TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
     //Check to see if the magnetometer needs initialization from the ATmega
     //will need init
     //Display "Waiting on data" on line 2
@@ -81,7 +81,7 @@ void InitDevice() {
 int main() {
     int16_t  Degrees = 0;
     uint8_t  SregSave;
-    int16_t  Correction = OFFSET;
+    int16_t  Correction = 0;
 
     Degrees = Degrees; //Because it's a warning otherwise 
     DataReady = FALSE; 
@@ -101,18 +101,19 @@ int main() {
             DataReady = FALSE;
             //Hand off to a function
 
-            Degrees = ProcessData(Correction);
+            Degrees = ProcessData();
 
             SREG = SregSave; /* Restore the status register */
         } 
 
-        if(!(PORTD & (1 << PD4))) {
+        if(bit_is_clear(PORTD, PD4)) {
             /* Check to so see if there is a low signal from the calibration circuit */
             Correction = Calibrate(Correction, Degrees);
         } else {
             /* If we aren't calibrating, display the direction and such */
-            //WriteString(("Degrees: %d", Degrees), LCD_LINE_TWO); //TODO fix this!
         } 
+        Degrees += Correction;
+        //WriteString(("Degrees: %d", Degrees), LCD_LINE_TWO); //TODO fix this!
     }
     return 0; /* If this is ever called, I don't even know anymore */
 }
@@ -137,29 +138,23 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
 }
 
 /* Return the calibration value */
-int16_t Calibrate() {
-    int16_t CalibrationOffset = OFFSET;
+int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees) {
     int16_t AdcValue = 0;
 
-    ADCSRA |= ((1 << ADEN) | (1 << ADIE)); /* Enable the ADC */ //May need to be offset
-    //Display CALIB
-    //start timer
-    while(!(PORTD & (1 << PD4))) { 
-        ADCSRA |= (1 << ADSC); /* Start the ADC conversion */
-        while(!(ADCSRA & ADIF)); /* Wait for the ADC to finish */ 
+    ADCSRA |= (_BV(ADEN) | _BV(ADIE)); /* Enable the ADC */ //May need to be offset
+    ADCSRA |= _BV(ADSC); /* Start the ADC conversion */
 
-        AdcValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
+    loop_until_bit_is_set(ADCSRA, ADIF); /* Wait for the ADC to finish */ 
 
-        AdcValue -= 0x100; /* a result of 0x100 refers to the pot pointing straight up and down */
-        //5k (middle) = offset of 0
-        //on timer display HURRY UP GARRUS (3 seconds)
-        //lower line is the offset
-    }
-    //Display "waiting on data"
+    AdcValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
+
+    AdcValue -= 0x100; /* a result of 0x100 refers to the pot pointing straight up and down */
+    //5k (middle) = offset of 0
+    //lower line is the offset
     return CalibrationOffset;
 }
 
-int16_t ProcessData(int16_t Correction) {
+int16_t ProcessData() {
     int16_t  MagX = 0;
     int16_t  MagY = 0;
     int16_t  MagZ = 0; //may not need
@@ -168,5 +163,5 @@ int16_t ProcessData(int16_t Correction) {
 
     //read I2C data
     //calculate heading
-    return CalculateDegHeading(MagX, MagY) + Correction;
+    return CalculateDegHeading(MagX, MagY);
 }

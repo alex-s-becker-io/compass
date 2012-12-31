@@ -32,10 +32,8 @@
 
 /* Calibration strings */
 #define CALIB     "Calibrating"
-#define GARRUS    "Hurry up, Garrus" 
 
 /* Directional defines */
-#define OFFSET 0 /* Corrects the heading so that a reading of OFFSET is North */ //Probably will be 90
 //Define the ranges here, figure out how to make this work.
 // 338 <= N  <=  22
 //  23 <= NE <=  67
@@ -55,7 +53,7 @@
 boolean WriteI2c(uint8_t Addr, uint8_t Cmd, void* Data); //Will need adjusting, just a prototype atm
 boolean ReadI2c(uint8_t Addr, uint8_t Cmd, void* Data);
 int16_t CalculateDegHeading(int16_t X, int16_t Y);
-int16_t Calibrate();
+int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees);
 int16_t ProcessData();
 void InitDevice();
 

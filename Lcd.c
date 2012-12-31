@@ -8,38 +8,48 @@
 #include <string.h>
 #include <stdlib.h>
 
-//TODO impliment busywait flag, timing ftw!  
+void ToggleEnable() {
+    PORTD |= _BV(PD1);
+    _delay_us(1);
+    PORTD &= ~(_BV(PD1));
+}
+
 /* Waits till the Busy Flag clears, then returns */
 void WaitTillDone() {
-    uint8_t PortVal;
+    /* Set R/W high */
+    PORTD |= _BV(PD4);
 
-    //set R/W high
-    /* Make PB8 an input pin to read the busy flag */
-    DDRB &= ~(1 << PB7);
+    /* Make PORTB input */
+    DDRB = 0;
     do { 
-        PORTD |= (1 << PD1); /* Toggle the enable pin */
-        _delay_us(1); /* Delay long enough to that the LCD realizes there's a command */
-        PORTD &= ~(1 << PD1); /* Toggle enable pin off */
+        /* Toggle the enable pin */
+        ToggleEnable();
+    } while(bit_is_set(PORTB, PB7));
 
-        PortVal = PORTB; /* Read in the value of PORTB */
-    } while(PortVal & BUSY_FLAG);
-    //set R/W low
-    DDRB |= (1 << PB7);
+    /* Set R/W low */
+    PORTD &= ~(_BV(PD4));
+
+    /* Restore PORTB to output */
+    DDRB = (uint8_t)(-1);
 }
 
 /* Helper function to send an individual byte to the LCD */
 void SendByte(uint8_t Data, boolean Command) {
     if(Command)
-        PORTD &= ~(1 << PD0); /* Make sure RS is set to 0 */
+        PORTD &= ~(_BV(PD0)); /* Make sure RS is set to 0 */
     else
-        PORTD |= (1 << PD0); /* Set RS to 1 */
+        PORTD |= _BV(PD0); /* Set RS to 1 */
 
-    PORTB = Data; /* Write the data to the pins */
+    PORTB = Data; /* Write the data to the pins */ 
 
-    PORTD |= (1 << PD1); /* Toggle the enable pin */
-    _delay_us(1); /* Delay long enough to that the LCD realizes there's a command */
-    PORTD &= ~(1 << PD1); /* Toggle enable pin off */
-    WaitTillDone(); /* Give enough time for the command to execute */ //TODO replace with function to impliment waiting
+    /* Tell the LCD controller that there's a command waiting on the data pins */
+    ToggleEnable();
+
+    /* Return RS to 0 if set (if not set this effectively does nothing */
+    PORTD &= ~(_BV(PD0));
+
+    /* Give enough time for the command to execute */
+    WaitTillDone();
 }
 
 /* Initialize the LCD display with the settings we want.  The LCD does start up
