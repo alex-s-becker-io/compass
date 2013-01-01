@@ -44,14 +44,15 @@
 // 248 <= W  <= 292
 // 293 <= NW <= 337
 
+/* I2C Address defines */
+#define LINEAR_ACC_ADDR   0x32
+#define MAGNETOMETER_ADDR 0x3C
+
 /* Other defines */
-//2 or 3 seconds?  Figure out later
 #define STARTUP_DELAY 2000 /* Delay between startup screens */
-#define BASE_TEN 10 /* Used for itoa to convert the direction int to a string */
+#define BASE_TEN 10        /* Used for itoa to convert the direction int to a string */
 
 /* Function prototypes */
-boolean WriteI2c(uint8_t Addr, uint8_t Cmd, void* Data); //Will need adjusting, just a prototype atm
-boolean ReadI2c(uint8_t Addr, uint8_t Cmd, void* Data);
 int16_t CalculateDegHeading(int16_t X, int16_t Y);
 int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees);
 int16_t ProcessData();
