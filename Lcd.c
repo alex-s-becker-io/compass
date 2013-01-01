@@ -55,7 +55,7 @@ void SendByte(uint8_t Data, boolean Command) {
 /* Initialize the LCD display with the settings we want.  The LCD does start up
  * with mostly the desired settings from the get go, but this is just to be sure
  */
-void InitLcd() {
+void LcdInit() {
     /* In case the LCD is going through its own power on initialization */
     WaitTillDone();
 
@@ -68,7 +68,7 @@ void InitLcd() {
     SendByte(ENTRY_MODE_SET | EMS_INCRIMENT, TRUE); /* Set the entry mode to */ 
 }
 
-void WriteString(const char* Str, uint8_t Pos) {
+void LcdWriteString(const char* Str, uint8_t Pos) {
     uint8_t i;
 
     SendByte(SET_CURSOR_ADDR | Pos, TRUE); /* Go to the start of the Line */

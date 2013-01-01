@@ -42,8 +42,8 @@
 #define LCD_LINE_TWO 0x40
 
 /* Prototypes */
-void WriteString(const char* Str, uint8_t Pos); // Maybe make WriteString ?
-void WriteChar(const uint8_t Byte, uint8_t pos);
-void InitLcd();
+void LcdWriteString(const char* Str, uint8_t Pos); // Maybe make WriteString ?
+void LcdWriteChar(const uint8_t Byte, uint8_t Pos);
+void LcdInit();
 
 #endif /* __LCD_H */

@@ -47,14 +47,14 @@ void InitDevice() {
      */
     DDRD |= (_BV(PD0) | _BV(PD1) | _BV(PD3));
 
-    InitLcd();
+    LcdInit();
 
     /* Display title screen */
-    WriteString(TITLE, LCD_LINE_ONE);
-    WriteString(NAME, LCD_LINE_TWO);
+    LcdWriteString(TITLE, LCD_LINE_ONE);
+    LcdWriteString(NAME, LCD_LINE_TWO);
     _delay_ms(STARTUP_DELAY);
 
-    WriteString(BOOTUP, LCD_LINE_TWO);
+    LcdWriteString(BOOTUP, LCD_LINE_TWO);
 
     /* Calibration circuit */
     /* PD4 is used to determine if the calibration circuit is active or not */
@@ -113,7 +113,7 @@ int main() {
             /* If we aren't calibrating, display the direction and such */
         } 
         Degrees += Correction;
-        //WriteString(("Degrees: %d", Degrees), LCD_LINE_TWO); //TODO fix this!
+        //LcdWriteString(("Degrees: %d", Degrees), LCD_LINE_TWO); //TODO fix this!
     }
     return 0; /* If this is ever called, I don't even know anymore */
 }
