@@ -8,6 +8,9 @@ uint8_t Error(uint8_t Status) {
 }
 
 uint8_t TwWriteByte(uint8_t Address, uint8_t Offset, uint8_t Value) {
+    //OI BAKA, use this:
+    //TwWriteMultiple(Address, Offset, &Value, 1);
+    //It should work better!
     /* Start the TWI */
     //TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);
     TW_SEND_START;
@@ -101,6 +104,9 @@ uint8_t TwWriteMultiple(uint8_t Address, uint8_t Offset,
 }
 
 uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
+    //OI BAKA, use this:
+    //TwReadMultiple(Address, Offset, &Value, 1);
+    //It should work better!
     /* Start the TWI */
     TW_SEND_START;
 
