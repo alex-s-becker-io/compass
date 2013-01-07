@@ -83,7 +83,7 @@ int main() {
     uint8_t  SregSave;
     int16_t  Correction = 0;
 
-    Degrees = Degrees; //Because it's a warning otherwise 
+    Degrees = Degrees; //Because it's a warning otherwise, and I don't think I can get rid of it
     DataReady = FALSE; 
 
     cli(); /* Because interrupts while setting things up is a bad idea */
@@ -139,16 +139,17 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
 
 /* Return the calibration value */
 int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees) {
-    int16_t AdcValue = 0;
+    int16_t RawValue = 0;
 
+    //The following should get moved to its own file!
     ADCSRA |= (_BV(ADEN) | _BV(ADIE)); /* Enable the ADC */ //May need to be offset
     ADCSRA |= _BV(ADSC); /* Start the ADC conversion */
 
     loop_until_bit_is_set(ADCSRA, ADIF); /* Wait for the ADC to finish */ 
 
-    AdcValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
+    RawValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
 
-    AdcValue -= 0x100; /* a result of 0x100 refers to the pot pointing straight up and down */
+    RawValue -= 0x100; /* a result of 0x100 refers to the pot pointing straight up and down */
     //5k (middle) = offset of 0
     //lower line is the offset
     return CalibrationOffset;
