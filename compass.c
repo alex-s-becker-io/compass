@@ -15,6 +15,7 @@
 /* #includes */
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <avr/power.h>
 #include <string.h>
 #include <util/twi.h>
 #include <stdlib.h>
@@ -34,6 +35,9 @@ ISR(INT0_vect) {
 
 /* Configure the pins on the ATmega328p */
 void InitDevice() {
+    /* Disable all devices on the board */
+    power_all_disable();
+
     /* LCD pins */
     /* All PORTB pins are data pins for the LCD screen */
     DDRB = (uint8_t)(-1);
@@ -62,6 +66,7 @@ void InitDevice() {
     PORTD |= _BV(PD4); /* Pullup PD4 */ 
 
     /* Configure the ADC */
+    power_adc_enable();
 
     /* Magnetometer set up */
     /* INT0 is attached to the DataReady pin on the magnometer, and will be used
@@ -71,6 +76,7 @@ void InitDevice() {
     EICRA |= _BV(ISC01) | _BV(ISC00); /* Trigger on rising edge */
 
     /* Configure TWI */
+    power_twi_enable();
     TWCR = _BV(TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
     //Check to see if the magnetometer needs initialization from the ATmega
     //will need init
@@ -149,7 +155,9 @@ int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees) {
 
     RawValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
 
-    RawValue -= 0x100; /* a result of 0x100 refers to the pot pointing straight up and down */
+    //Print out RawValue to LCD
+    /* A result of 0x100 refers to the pot pointing straight up and down */ //TODO VERIFY THIS
+    //RawValue -= 0x100;
     //5k (middle) = offset of 0
     //lower line is the offset
     return CalibrationOffset;
@@ -159,6 +167,7 @@ int16_t ProcessData() {
     int16_t  MagX = 0;
     int16_t  MagY = 0;
     int16_t  MagZ = 0; //may not need
+    uint8_t  Buffer[6];
 
     MagZ = MagZ; //Warning killer hack YOU BETTER REMOVE THIS LATER ON FOOLE
 
