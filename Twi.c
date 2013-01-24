@@ -24,7 +24,7 @@ uint8_t TwWriteByte(uint8_t Address, uint8_t Offset, uint8_t Value) {
 
     /* Transmit the slave address and write bit */
     TWDR = TW_SLAVE_ADDR_WRITE(Address);
-    //TWCR = _BV(TWINT) | _BV(TWEN); 
+    //TWCR = _BV(TWINT) | _BV(TWEN);
     TW_SEND_DATA;
     loop_until_bit_is_set(TWCR, TWINT);
 
@@ -91,7 +91,7 @@ uint8_t TwWriteMultiple(uint8_t Address, uint8_t Offset,
     /* Write the data to the bus */
     for(i = 0; i < Num; i ++) {
         TWDR = Bytes[i];
-        TW_SEND_DATA; 
+        TW_SEND_DATA;
         loop_until_bit_is_set(TWCR, TWINT);
 
         if(TW_STATUS != TW_MT_DATA_ACK)
@@ -136,8 +136,8 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
         return Error(TW_STATUS);
 
     /* Repeat start the TWI */
-    TW_SEND_START; 
-    loop_until_bit_is_set(TWCR, TWINT); 
+    TW_SEND_START;
+    loop_until_bit_is_set(TWCR, TWINT);
     if(TW_STATUS != TW_REP_START)
         return Error(TW_STATUS);
 
@@ -160,6 +160,8 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
 
 uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
                        uint8_t *Bytes, uint16_t Num) {
+    uint16_t i;
+
     /* Start the TWI */
     TW_SEND_START;
 
@@ -189,8 +191,8 @@ uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
         return Error(TW_STATUS);
 
     /* Repeat start the TWI */
-    TW_SEND_START; 
-    loop_until_bit_is_set(TWCR, TWINT); 
+    TW_SEND_START;
+    loop_until_bit_is_set(TWCR, TWINT);
     if(TW_STATUS != TW_REP_START)
         return Error(TW_STATUS);
 

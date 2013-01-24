@@ -22,7 +22,7 @@ uint8_t TwWriteByte(uint8_t Address, uint8_t Offset, uint8_t Value);
 uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value);
 
 uint8_t TwWriteMultiple(uint8_t Address, uint8_t Offset,
-                        uint8_t *Bytes, uint16_t Num); 
+                        uint8_t *Bytes, uint16_t Num);
 uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
                        uint8_t *Bytes, uint16_t Num);
 

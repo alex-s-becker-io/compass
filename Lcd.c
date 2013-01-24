@@ -21,7 +21,7 @@ void WaitTillDone() {
 
     /* Make PORTB input */
     DDRB = 0;
-    do { 
+    do {
         /* Toggle the enable pin */
         ToggleEnable();
     } while(bit_is_set(PORTB, PB7));
@@ -40,7 +40,7 @@ void SendByte(uint8_t Data, boolean Command) {
     else
         PORTD |= _BV(PD0); /* Set RS to 1 */
 
-    PORTB = Data; /* Write the data to the pins */ 
+    PORTB = Data; /* Write the data to the pins */
 
     /* Tell the LCD controller that there's a command waiting on the data pins */
     ToggleEnable();
@@ -64,8 +64,8 @@ void LcdInit() {
     SendByte(DISPLAY_CTRL | DC_DISPLAY_ON, TRUE);
 
     SendByte(CLEAR_DISPLAY, TRUE);
-    
-    SendByte(ENTRY_MODE_SET | EMS_INCRIMENT, TRUE); /* Set the entry mode to */ 
+
+    SendByte(ENTRY_MODE_SET | EMS_INCRIMENT, TRUE); /* Set the entry mode to */
 }
 
 void LcdWriteString(const char* Str, uint8_t Pos) {

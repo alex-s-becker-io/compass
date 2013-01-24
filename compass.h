@@ -2,7 +2,7 @@
 #define __COMPASS_H
 
 /* Includes */
-#include "boolean.h" 
+#include "boolean.h"
 #define F_CPU 1000000UL /* CPU speed = 1 MHz */
 #include <util/delay.h>
 
@@ -49,13 +49,16 @@
 #define MAGNETOMETER_ADDR 0x3C
 
 /* Other defines */
-#define STARTUP_DELAY 2000 /* Delay between startup screens */
-#define BASE_TEN 10        /* Used for itoa to convert the direction int to a string */
+#define STARTUP_DELAY 2000    /* Delay between startup screens */
+#define BASE_TEN 10           /* Used for itoa to convert the direction int to a string */
+#define RAD_TO_DEG (180/M_PI) /* Convert radians to degrees */
+#define DEG_TO_RAD (M_PI/180) /* Convert degrees to radians */
 
 /* Function prototypes */
 int16_t CalculateDegHeading(int16_t X, int16_t Y);
 int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees);
 int16_t ProcessData();
 void InitDevice();
+char* HeadingString(int16_t Degrees);
 
 #endif /* __COMPASS_H */

@@ -35,10 +35,10 @@ ISR(INT0_vect) {
 
 /* Configure the pins on the ATmega328p */
 void InitDevice() {
-    /* Disable all devices on the board */
+    /* Disable all possible devices on the board */
     power_all_disable();
 
-    /* LCD pins */
+    /* LCD setup */
     /* All PORTB pins are data pins for the LCD screen */
     DDRB = (uint8_t)(-1);
 
@@ -63,17 +63,19 @@ void InitDevice() {
     /* Calibration circuit */
     /* PD4 is used to determine if the calibration circuit is active or not */
     DDRD &= ~_BV(PD4); /* Configure PD4 as an input */
-    PORTD |= _BV(PD4); /* Pullup PD4 */ 
+    PORTD |= _BV(PD4); /* Pullup PD4 */
 
     /* Configure the ADC */
-    power_adc_enable();
+    //Currently not implemented
+    //power_adc_enable();
 
     /* Magnetometer set up */
     /* INT0 is attached to the DataReady pin on the magnometer, and will be used
-     * to signal that data is ready to be read (obviously)
+     * to signal that data is ready to be read (obviously).  INT0 is set to go
+     * off on a rising edge.
      */
-    EIMSK |= _BV(INT0); /* Enable the INT0 interrupt */
-    EICRA |= _BV(ISC01) | _BV(ISC00); /* Trigger on rising edge */
+    EIMSK |= _BV(INT0);
+    EICRA |= _BV(ISC01) | _BV(ISC00);
 
     /* Configure TWI */
     power_twi_enable();
@@ -87,43 +89,101 @@ void InitDevice() {
 int main() {
     int16_t  Degrees = 0;
     uint8_t  SregSave;
-    int16_t  Correction = 0;
+    //int16_t  Correction = 0;
 
     Degrees = Degrees; //Because it's a warning otherwise, and I don't think I can get rid of it
-    DataReady = FALSE; 
+    DataReady = FALSE;
 
-    cli(); /* Because interrupts while setting things up is a bad idea */
+    /* Setup the ATmega328p */
     InitDevice();
-    sei(); /* Enable interrupts */
 
-    while(!DataReady); /* Wait till we get data */
+    /* Enable interrupts */
+    sei();
+
+    /* Wait till we get data */
+    while(!DataReady);
 
     /* Main loop */
     while(TRUE) {
         /* If there is pending data, process it */
         if(DataReady) {
             SregSave = SREG; /* Preserve the status register */
-            cli(); /* We want the update completely performed without interruptions */
-            DataReady = FALSE;
+            /* We want the data retrevial completely performed without interruptions */
+            cli();
             //Hand off to a function
 
             Degrees = ProcessData();
 
-            SREG = SregSave; /* Restore the status register */
-        } 
+            DataReady = FALSE;
 
-        if(bit_is_clear(PORTD, PD4)) {
+            /* Restore the status register */
+            SREG = SregSave;
+        }
+
+        //Currently not used, add in later once supplies are received
+        /* Check to see if the calibration circuit is active, and if so, adjust
+         * change the mode to calibration mode
+         */
+        //if(bit_is_clear(PORTD, PD4)) {
             /* Check to so see if there is a low signal from the calibration circuit */
-            Correction = Calibrate(Correction, Degrees);
-        } else {
+            //Correction = Calibrate(Correction, Degrees);
+        //} else {
             /* If we aren't calibrating, display the direction and such */
-        } 
-        Degrees += Correction;
+            LcdWriteString(HeadingString(Degrees), LCD_LINE_ONE);
+        //}
+        //Degrees += Correction;
+
         //LcdWriteString(("Degrees: %d", Degrees), LCD_LINE_TWO); //TODO fix this!
     }
-    return 0; /* If this is ever called, I don't even know anymore */
+    /* If this is ever called, I don't even know anymore */
+    return 0;
 }
 
+/* Convert the degrees into a string
+ *
+ * Parameters:
+ *     Degrees - the degree value of the heading vector
+ *
+ * Returns: The string representation
+ */
+char* HeadingString(int16_t Degrees) {
+// 338 <= N  <=  22
+//  23 <= NE <=  67
+//  68 <= E  <= 112
+// 113 <= SE <= 157
+// 158 <= S  <= 202
+// 203 <= SW <= 247
+// 248 <= W  <= 292
+// 293 <= NW <= 337
+    if((338 <= Degrees) || (Degrees <= 22)) {
+        return NORTH_S;
+    } else if((23 <= Degrees) && (Degrees <= 67)) {
+        return NE_S;
+    } else if((68 <= Degrees) && (Degrees <= 112)) {
+        return EAST_S;
+    } else if((113 <= Degrees) && (Degrees <= 157)) {
+        return SE_S;
+    } else if((158 <= Degrees) && (Degrees <= 202)) {
+        return SOUTH_S;
+    } else if((203 <= Degrees) && (Degrees <= 247)) {
+        return SW_S;
+    } else if((248 <= Degrees) && (Degrees <= 292)) {
+        return WEST_S;
+    } else if((293 <= Degrees) && (Degrees <= 337)) {
+        return NW_S;
+    } else {
+        return "ERROR";
+    }
+}
+
+/* Calculate the heading based on the data passed from the magnetometer
+ *
+ * Parameters:
+ *     X - The X value of the heading vector
+ *     Y - The Y value of the heading vector
+ *
+ * Returns: The number of degrees from the X axis the vector is from
+ */
 int16_t CalculateDegHeading(int16_t X, int16_t Y) {
     double TempResult;
     //May not needed due to how atan is handled
@@ -131,43 +191,54 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
         return 0;
     else if (X == 0 && Y < 0)
         return 180;*/
-    
+
     TempResult = atan2(Y, X);
-    TempResult = -TempResult * (180 / M_PI); /* Convert the result to degrees */ //Define!
-    
+
+    /* Convert the result to degrees */
+    TempResult = -TempResult * RAD_TO_DEG;
+
     /* Correct the result */
     if(TempResult >= 360)
         TempResult -= 360; /* Adjust, shouldn't be an issue */
-    else if(TempResult < 360)
+    else if(TempResult < 0)
         TempResult += 360; /* Convert to a positive degree */
     return floor(TempResult);
 }
 
+//Currently not implemented
 /* Return the calibration value */
-int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees) {
-    int16_t RawValue = 0;
+//int16_t Calibrate(int16_t CalibrationOffset, int16_t Degrees) {
+    //int16_t RawValue = 0;
 
     //The following should get moved to its own file!
-    ADCSRA |= (_BV(ADEN) | _BV(ADIE)); /* Enable the ADC */ //May need to be offset
-    ADCSRA |= _BV(ADSC); /* Start the ADC conversion */
+    //ADCSRA |= (_BV(ADEN) | _BV(ADIE)); /* Enable the ADC */ //May need to be offset
+    //ADCSRA |= _BV(ADSC); /* Start the ADC conversion */
 
-    loop_until_bit_is_set(ADCSRA, ADIF); /* Wait for the ADC to finish */ 
+    //loop_until_bit_is_set(ADCSRA, ADIF); /* Wait for the ADC to finish */
 
-    RawValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
+    //RawValue = (ADCH << 8) | (ADCL); /* Read the value off the ADC */
 
     //Print out RawValue to LCD
     /* A result of 0x100 refers to the pot pointing straight up and down */ //TODO VERIFY THIS
     //RawValue -= 0x100;
     //5k (middle) = offset of 0
     //lower line is the offset
-    return CalibrationOffset;
-}
+    //return CalibrationOffset;
+//}
 
+/* Process the data from the magnetometer
+ *
+ * Parameters: None
+ *
+ * Returns: The heading in degrees
+ */
+//Currently uses only the x and y data, but see if it's possible to use the z
+//value to correct for it being held at an angle
 int16_t ProcessData() {
     int16_t  MagX = 0;
     int16_t  MagY = 0;
     int16_t  MagZ = 0; //may not need
-    uint8_t  Buffer[6];
+    //uint8_t  Buffer[6];
 
     MagZ = MagZ; //Warning killer hack YOU BETTER REMOVE THIS LATER ON FOOLE
 

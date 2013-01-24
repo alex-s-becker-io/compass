@@ -2,7 +2,7 @@
 #define __LCD_H
 
 /* Includes */
-#include <stdint.h> 
+#include <stdint.h>
 #define F_CPU 1000000UL /* CPU speed = 1 MHz */
 #include <util/delay.h>
 
