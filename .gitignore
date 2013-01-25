@@ -163,6 +163,5 @@ pip-log.txt
 .DS_Store
 
 #Atmel items
-*.atsln
 *.atsuo
 *.cproj
