@@ -159,6 +159,7 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
     TWDR = TW_SLAVE_ADDR_READ(Address);
     TW_SEND_DATA;
     loop_until_bit_is_set(TWCR, TWINT);
+
     if(TW_STATUS != TW_MT_SLA_ACK) {
         Status = TW_STATUS;
         goto Cleanup;
@@ -236,7 +237,7 @@ uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
     /* Read the data from the bus */
     for(i = 0; i < (Num - 1); i++) {
         Bytes[i] = TWDR;
-        //Send ACK
+        TW_SEND_ACK
     }
 
     Bytes[Num - 1] = TWDR;

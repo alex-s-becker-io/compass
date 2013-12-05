@@ -6,13 +6,14 @@
 #include "boolean.h"
 
 /* Address Macros */
-#define TW_SLAVE_ADDR_WRITE(a) ((a & 0xFE) | TW_WRITE)
-#define TW_SLAVE_ADDR_READ(a)  ((a & 0xFE) | TW_READ)
+#define TW_SLAVE_ADDR_WRITE(a)  ((a & 0xFE) | TW_WRITE)
+#define TW_SLAVE_ADDR_READ(a)   ((a & 0xFE) | TW_READ)
 
 /* Start/Stop Macros */
-#define TW_SEND_STOP  (TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN))
-#define TW_SEND_START (TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN))
-#define TW_SEND_DATA  (TWCR = _BV(TWINT) | _BV(TWEN))
+#define TW_SEND_STOP    (TWCR = _BV(TWINT) | _BV(TWSTO) | _BV(TWEN))
+#define TW_SEND_START   (TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN))
+#define TW_SEND_DATA    (TWCR = _BV(TWINT) | _BV(TWEN))
+#define TW_SEND_ACK     (TWCR = _BV(TWINT) | _BV(TWEA))
 
 /* Error define */
 #define TW_SUCCESS ((uint8_t)~TW_STATUS_MASK)
