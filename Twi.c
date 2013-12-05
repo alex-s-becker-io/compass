@@ -44,7 +44,7 @@ uint8_t TwWriteByte(uint8_t Address, uint8_t Offset, uint8_t Value) {
 
     loop_until_bit_is_set(TWCR, TWINT);
 
-    if(TW_STATUS != TW_MT_DATA_ACK)
+    if(TW_STATUS != TW_MT_DATA_ACK) {
         Status = TW_STATUS;
         goto Cleanup;
     }
