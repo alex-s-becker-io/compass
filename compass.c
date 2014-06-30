@@ -2,7 +2,7 @@
  *
  * This file contains the code to run the portable compass.
  *
- * Author: Alexandria "iospace" Becker
+ * Author: Alex "iospace" Becker
  *
  * File name: compass.c
  *
