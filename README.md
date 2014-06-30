@@ -1,4 +1,4 @@
-Code for Alexandria Becker's compass project
+Code for Alex Becker's compass project
 
 Ideas
 ---
