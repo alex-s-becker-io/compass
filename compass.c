@@ -90,6 +90,9 @@ int main() {
     int16_t  Degrees = 0;
     uint8_t  SregSave;
     //int16_t  Correction = 0;
+	
+	/* Disable interrupts during setup */
+	cli();
 
     Degrees = Degrees; //Because it's a warning otherwise, and I don't think I can get rid of it
     DataReady = FALSE;
@@ -119,6 +122,7 @@ int main() {
             /* Restore the status register */
             SREG = SregSave;
         }
+		LcdWriteString("Test Message", LCD_LINE_ONE);
 
         //Currently not used, add in later once supplies are received
         /* Check to see if the calibration circuit is active, and if so, adjust
@@ -129,11 +133,11 @@ int main() {
             //Correction = Calibrate(Correction, Degrees);
         //} else {
             /* If we aren't calibrating, display the direction and such */
-            LcdWriteString(HeadingString(Degrees), LCD_LINE_ONE);
+            //LcdWriteString(HeadingString(Degrees), LCD_LINE_ONE);
         //}
         //Degrees += Correction;
 
-        //LcdWriteString(("Degrees: %d", Degrees), LCD_LINE_TWO); //TODO fix this!
+        //LcdWriteString(("Degrees: %d", Degrees), LCD_LINE_TWO);
     }
     /* If this is ever called, I don't even know anymore */
     return 0;
@@ -237,10 +241,10 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
 int16_t ProcessData() {
     int16_t  MagX = 0;
     int16_t  MagY = 0;
-    int16_t  MagZ = 0; //may not need
+    //int16_t  MagZ = 0; //may not need
     //uint8_t  Buffer[6];
 
-    MagZ = MagZ; //Warning killer hack YOU BETTER REMOVE THIS LATER ON FOOLE
+    //MagZ = MagZ; //Warning killer hack YOU BETTER REMOVE THIS LATER ON FOOLE
 
     //read I2C data
     //calculate heading

@@ -173,7 +173,7 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
 
 Cleanup:
     TW_SEND_STOP; 
-    return TW_SUCCESS;
+    return Status;
 }
 
 uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
@@ -237,7 +237,7 @@ uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
     /* Read the data from the bus */
     for(i = 0; i < (Num - 1); i++) {
         Bytes[i] = TWDR;
-        TW_SEND_ACK
+        TW_SEND_ACK;
     }
 
     Bytes[Num - 1] = TWDR;
