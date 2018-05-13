@@ -26,7 +26,7 @@
 //#include "boolean.h"
 
 /* Global Variables */
-boolean DataReady; /* Data is ready to be read */
+boolean DataReady = FALSE; /* Data is ready to be read */
 
 /* The DataReady pin is hooked up to INT0 on the 328p */
 ISR(INT0_vect) {
@@ -58,7 +58,7 @@ void InitDevice() {
     LcdWriteString(NAME, LCD_LINE_TWO);
     _delay_ms(STARTUP_DELAY);
 
-    LcdWriteString(BOOTUP, LCD_LINE_TWO);
+    //LcdWriteString(BOOTUP, LCD_LINE_TWO);
 
     /* Calibration circuit */
     /* PD4 is used to determine if the calibration circuit is active or not */
@@ -97,14 +97,21 @@ int main() {
     Degrees = Degrees; //Because it's a warning otherwise, and I don't think I can get rid of it
     DataReady = FALSE;
 
+    DDRC = (uint8_t)(-1);
+    PORTC |= _BV(PC0);
+
     /* Setup the ATmega328p */
     InitDevice();
+
+    //Debug
+    PORTC |= _BV(PC1);
 
     /* Enable interrupts */
     sei();
 
+
     /* Wait till we get data */
-    while(!DataReady);
+    //while(!DataReady);
 
     /* Main loop */
     while(TRUE) {
@@ -122,7 +129,7 @@ int main() {
             /* Restore the status register */
             SREG = SregSave;
         }
-		LcdWriteString("Test Message", LCD_LINE_ONE);
+
 
         //Currently not used, add in later once supplies are received
         /* Check to see if the calibration circuit is active, and if so, adjust

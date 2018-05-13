@@ -10,21 +10,27 @@
 
 void ToggleEnable() {
     PORTD |= _BV(PD1);
-    _delay_us(1);
+    _delay_us(10);
     PORTD &= ~(_BV(PD1));
 }
 
 /* Waits till the Busy Flag clears, then returns */
 void WaitTillDone() {
-    /* Set R/W high */
+    boolean busy = TRUE;
+    /* Set R/W high and R/S low */
     PORTD |= _BV(PD4);
+    PORTD &= ~(_BV(PD0));
 
     /* Make PORTB input */
     DDRB = 0;
     do {
         /* Toggle the enable pin */
-        ToggleEnable();
-    } while(bit_is_set(PORTB, PB7));
+        //ToggleEnable();
+        PORTD |= _BV(PD1);
+        PORTD &= ~(_BV(PD1));
+        _delay_us(10);
+        busy = bit_is_set(PORTB, PB7);
+    } while(busy);
 
     /* Set R/W low */
     PORTD &= ~(_BV(PD4));
@@ -49,7 +55,8 @@ void SendByte(uint8_t Data, boolean Command) {
     PORTD &= ~(_BV(PD0));
 
     /* Give enough time for the command to execute */
-    WaitTillDone();
+    //WaitTillDone();
+    _delay_ms(5);
 }
 
 /* Initialize the LCD display with the settings we want.  The LCD does start up
@@ -57,15 +64,19 @@ void SendByte(uint8_t Data, boolean Command) {
  */
 void LcdInit() {
     /* In case the LCD is going through its own power on initialization */
-    WaitTillDone();
+    _delay_ms(50);
+    //WaitTillDone();
 
     SendByte(FUNCTION_SET | FS_EIGHT_BIT | FS_TWO_LINES, TRUE);
 
-    SendByte(DISPLAY_CTRL | DC_DISPLAY_ON, TRUE);
+    //SendByte(DISPLAY_CTRL | DC_DISPLAY_ON, TRUE);
+    SendByte(DISPLAY_CTRL, TRUE);
 
     SendByte(CLEAR_DISPLAY, TRUE);
 
     SendByte(ENTRY_MODE_SET | EMS_INCRIMENT, TRUE); /* Set the entry mode to */
+
+    SendByte(DISPLAY_CTRL | DC_DISPLAY_ON, TRUE);
 }
 
 void LcdWriteString(const char* Str, uint8_t Pos) {

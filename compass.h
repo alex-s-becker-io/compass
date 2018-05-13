@@ -14,24 +14,26 @@
 
 /* Direction Strings */
 //May need to be const char* to play nice with the LCD
-#define NORTH_S   "North"
-#define NE_S      "Northeast"
-#define EAST_S    "East"
-#define SE_S      "Southeast"
-#define SOUTH_S   "South"
-#define SW_S      "Southwest"
-#define WEST_S    "West"
-#define NW_S      "Northwest"
-#define DIRECTION "Degrees: "
+//                "1234567890123456"
+#define NORTH_S   "     North      "
+#define NE_S      "   Northeast    "
+#define EAST_S    "      East      "
+#define SE_S      "   Southeast    "
+#define SOUTH_S   "     South      "
+#define SW_S      "   Southwest    "
+#define WEST_S    "      West      "
+#define NW_S      "   Northwest    "
+#define DIRECTION "Degrees:        "
 
 /* Bootup strings */
-#define TITLE     "Compass Ver X.Y"
-#define NAME      " -Alex Becker-"
-#define BOOTUP    "Booting up"
-#define WAITING   "Waiting on data"
+//                "1234567890123456"
+#define TITLE     "Compass Ver X.Y "
+#define NAME      " -Alex Becker-  "
+#define BOOTUP    "   Booting up   "
+#define WAITING   "Waiting on data "
 
 /* Calibration strings */
-#define CALIB     "Calibrating"
+#define CALIB     "  Calibrating   "
 
 /* Directional defines */
 //Define the ranges here, figure out how to make this work.
