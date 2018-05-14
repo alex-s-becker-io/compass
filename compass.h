@@ -17,11 +17,11 @@
 //                "1234567890123456"
 #define NORTH_S   "     North      "
 #define NE_S      "   Northeast    "
-#define EAST_S    "      East      "
+#define EAST_S    "     East       "
 #define SE_S      "   Southeast    "
 #define SOUTH_S   "     South      "
 #define SW_S      "   Southwest    "
-#define WEST_S    "      West      "
+#define WEST_S    "     West       "
 #define NW_S      "   Northwest    "
 #define DIRECTION "Degrees:        "
 
@@ -49,6 +49,15 @@
 /* I2C Address defines */
 #define LINEAR_ACC_ADDR   0x32
 #define MAGNETOMETER_ADDR 0x3C
+
+/* Registers */
+#define MAG_CRA_REG 0x00
+#define MAG_CRB_REG 0x01
+#define MAG_MR_REG  0x02
+#define MAG_X_REG_L 0x03
+#define MAG_X_REG_H 0x04
+#define MAG_Y_REG_L 0x05
+#define MAG_Y_REG_H 0x06
 
 /* Other defines */
 #define STARTUP_DELAY 2000    /* Delay between startup screens */

@@ -19,10 +19,12 @@
 #include <string.h>
 #include <util/twi.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "compass.h"
 #include "Lcd.h"
+#include "Twi.h"
 //#include "boolean.h"
 
 /* Global Variables */
@@ -35,12 +37,19 @@ ISR(INT0_vect) {
 
 /* Configure the pins on the ATmega328p */
 void InitDevice() {
+    //temp
+    uint8_t test, status;
+    char temp_str[16];
     /* Disable all possible devices on the board */
     power_all_disable();
 
+    test = 0;
+    status = 0;
+
     /* LCD setup */
     /* All PORTB pins are data pins for the LCD screen */
-    DDRB = (uint8_t)(-1);
+    //DDRB = (uint8_t)(-1);
+    DDRB = PORT_ALL_OUTPUT;
 
     /* PDO, PD1, and PD3 are all used as control pins for the LCD screen.
      * PD0 is used as the R/S pin, which determines whether the LCD is getting a
@@ -54,7 +63,7 @@ void InitDevice() {
     LcdInit();
 
     /* Display title screen */
-    LcdWriteString(TITLE, LCD_LINE_ONE);
+    //LcdWriteString(TITLE, LCD_LINE_ONE);
     LcdWriteString(NAME, LCD_LINE_TWO);
     _delay_ms(STARTUP_DELAY);
 
@@ -62,8 +71,8 @@ void InitDevice() {
 
     /* Calibration circuit */
     /* PD4 is used to determine if the calibration circuit is active or not */
-    DDRD &= ~_BV(PD4); /* Configure PD4 as an input */
-    PORTD |= _BV(PD4); /* Pullup PD4 */
+    //DDRD &= ~_BV(PD4); /* Configure PD4 as an input */
+    //PORTD |= _BV(PD4); /* Pullup PD4 */
 
     /* Configure the ADC */
     //Currently not implemented
@@ -74,21 +83,53 @@ void InitDevice() {
      * to signal that data is ready to be read (obviously).  INT0 is set to go
      * off on a rising edge.
      */
-    EIMSK |= _BV(INT0);
-    EICRA |= _BV(ISC01) | _BV(ISC00);
+    //EIMSK |= _BV(INT0);
+    //EICRA |= _BV(ISC01) | _BV(ISC00);
 
     /* Configure TWI */
     power_twi_enable();
     TWCR = _BV(TWEN); /* Enable TWI */ //May not be needed here, but definitely elsewhere
     //Check to see if the magnetometer needs initialization from the ATmega
     //will need init
+    /* Set the magnetometer in continuous mode */
+    status = TwWriteByte(MAGNETOMETER_ADDR, MAG_MR_REG, 0x01);
+    if(status != TW_SUCCESS) {
+        //sprintf(temp_str, "write error: %x", status);
+        //LcdWriteString(temp_str, LCD_LINE_ONE);
+    } else
+        PORTC |= _BV(PC0);
+
+    /*status = TwReadByte(MAGNETOMETER_ADDR, MAG_MR_REG, &test);
+    if(test == 0x01)
+        LcdWriteString("VICTORY IS MINE", LCD_LINE_ONE);
+    else {
+        sprintf(temp_str, "MAG_MR_REG: %x", test);
+        LcdWriteString(temp_str, LCD_LINE_ONE);
+    }*/
+
+    //status = TwReadByte(MAGNETOMETER_ADDR, MAG_CRA_REG, &test);
+    status = TwReadByte(MAGNETOMETER_ADDR, MAG_MR_REG, &test);
+    if(status != TW_SUCCESS) {
+        sprintf(temp_str, "read error: %x", status);
+        LcdWriteString(temp_str, LCD_LINE_TWO);
+    } else
+        PORTC |= _BV(PC1);
+
+    if(test == 0x10) 
+        LcdWriteString(WAITING, LCD_LINE_TWO);
+    else {
+        sprintf(temp_str, "MAG_CRA_REG: %x", test);
+        LcdWriteString(temp_str, LCD_LINE_TWO);
+    }
     //Display "Waiting on data" on line 2
+    //LcdWriteString(WAITING, LCD_LINE_TWO);
 }
 
 /* It's the main function for the program, what more do you need to know? */
 int main() {
     int16_t  Degrees = 0;
     uint8_t  SregSave;
+    //char degree_str[16];
     //int16_t  Correction = 0;
 	
 	/* Disable interrupts during setup */
@@ -98,17 +139,17 @@ int main() {
     DataReady = FALSE;
 
     DDRC = (uint8_t)(-1);
-    PORTC |= _BV(PC0);
+    //PORTC |= _BV(PC0);
 
     /* Setup the ATmega328p */
     InitDevice();
 
     //Debug
-    PORTC |= _BV(PC1);
+    //PORTC |= _BV(PC1);
+
 
     /* Enable interrupts */
     sei();
-
 
     /* Wait till we get data */
     //while(!DataReady);
@@ -116,9 +157,9 @@ int main() {
     /* Main loop */
     while(TRUE) {
         /* If there is pending data, process it */
-        if(DataReady) {
-            SregSave = SREG; /* Preserve the status register */
-            /* We want the data retrevial completely performed without interruptions */
+        /*if(DataReady) {
+            SregSave = SREG; // Preserve the status register //
+            // We want the data retrevial completely performed without interruptions //
             cli();
             //Hand off to a function
 
@@ -126,10 +167,11 @@ int main() {
 
             DataReady = FALSE;
 
-            /* Restore the status register */
+            // Restore the status register //
             SREG = SregSave;
-        }
+        }*/
 
+        // Polling time
 
         //Currently not used, add in later once supplies are received
         /* Check to see if the calibration circuit is active, and if so, adjust
@@ -144,7 +186,8 @@ int main() {
         //}
         //Degrees += Correction;
 
-        //LcdWriteString(("Degrees: %d", Degrees), LCD_LINE_TWO);
+        //sprintf(degree_str, "Degrees: %3d°", Degrees);
+        //LcdWriteString(degree_str, LCD_LINE_TWO);
     }
     /* If this is ever called, I don't even know anymore */
     return 0;
@@ -249,11 +292,17 @@ int16_t ProcessData() {
     int16_t  MagX = 0;
     int16_t  MagY = 0;
     //int16_t  MagZ = 0; //may not need
-    //uint8_t  Buffer[6];
+    uint8_t  Buffer[6];
 
     //MagZ = MagZ; //Warning killer hack YOU BETTER REMOVE THIS LATER ON FOOLE
 
     //read I2C data
+    // Might have to shift right 4
+    TwReadMultiple(MAGNETOMETER_ADDR, MAG_X_REG_L, Buffer, 2);
+    MagX = (Buffer[0] | (Buffer[1] << 8));
+
+    TwReadMultiple(MAGNETOMETER_ADDR, MAG_Y_REG_L, Buffer, 2);
+    MagY = (Buffer[0] | (Buffer[1] << 8));
     //calculate heading
     return CalculateDegHeading(MagX, MagY);
 }
