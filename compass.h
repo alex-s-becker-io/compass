@@ -58,6 +58,11 @@
 #define MAG_X_REG_H 0x04
 #define MAG_Y_REG_L 0x05
 #define MAG_Y_REG_H 0x06
+// other regs
+#define SR_REG_M    0x09
+
+#define SR_REG_M_LOCK   0x02
+#define SR_REG_M_DRDY   0x01
 
 /* Other defines */
 #define STARTUP_DELAY 2000    /* Delay between startup screens */

@@ -199,7 +199,7 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
     }
            
     /* Read the data from the bus */
-    *Value = temp;
+    *Value = TWDR;
 
 Cleanup:
     TW_SEND_STOP; 
@@ -259,21 +259,34 @@ uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
     TW_SEND_DATA;
     loop_until_bit_is_set(TWCR, TWINT);
 
-    if(TW_STATUS != TW_MT_SLA_ACK) {
+    if(TW_STATUS != TW_MR_SLA_ACK) {
         Status = TW_STATUS;
         goto Cleanup;
     }
 
     /* Read the data from the bus */
     for(i = 0; i < (Num - 1); i++) {
-        Bytes[i] = TWDR;
         TW_SEND_ACK;
+
+        if(TW_STATUS != TW_MR_DATA_ACK) {
+            Status = TW_STATUS;
+            goto Cleanup;
+        }
+        Bytes[i] = TWDR;
     }
 
-    Bytes[Num - 1] = TWDR;
 
     /* Send NACK back then stop */
     TWCR |= _BV(TWINT);
+
+    loop_until_bit_is_set(TWCR, TWINT);
+    if(TW_STATUS != TW_MR_DATA_NACK) {
+        Status = TW_STATUS;
+        goto Cleanup;
+    }
+
+    // Read in the last digit
+    Bytes[Num - 1] = TWDR;
 
 Cleanup:
     TW_SEND_STOP; 

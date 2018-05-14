@@ -5,6 +5,7 @@
 #include <stdint.h>
 #define F_CPU 1000000UL /* CPU speed = 1 MHz */
 #include <util/delay.h>
+#include "boolean.h"
 
 /* Command instructions */
 #define CLEAR_DISPLAY   0x01 /* Clears the display */
@@ -44,6 +45,7 @@
 /* Prototypes */
 void LcdWriteString(const char* Str, uint8_t Pos); // Maybe make WriteString ?
 void LcdWriteChar(const uint8_t Byte, uint8_t Pos);
+void SendByte(uint8_t Data, boolean Command);
 void LcdInit();
 
 #endif /* __LCD_H */
