@@ -52,12 +52,14 @@
 
 /* Registers */
 #define MAG_CRA_REG 0x00
-#define MAG_CRB_REG 0x01
+#define CRB_REG_X   0x01
 #define MAG_MR_REG  0x02
-#define MAG_X_REG_L 0x03
-#define MAG_X_REG_H 0x04
-#define MAG_Y_REG_L 0x05
-#define MAG_Y_REG_H 0x06
+#define MAG_X_REG_H 0x03
+#define MAG_X_REG_L 0x04
+#define OUT_Z_H_M   0x05
+#define OUT_Z_L_M   0x06
+#define MAG_Y_REG_H 0x07
+#define MAG_Y_REG_L 0x08
 // other regs
 #define SR_REG_M    0x09
 

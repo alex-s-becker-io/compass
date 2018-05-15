@@ -318,32 +318,37 @@ int16_t ProcessData() {
     int16_t  heading;
     //int16_t  MagZ = 0; //may not need
     uint8_t  Buffer[6];
-    uint8_t x_low, x_high, y_low, y_high;
+    uint8_t x_low, x_high, y_low, y_high, z_low, z_high;
     char temp_str[17];
 
     //MagZ = MagZ; //Warning killer hack YOU BETTER REMOVE THIS LATER ON FOOLE
 
     //read I2C data
     // Might have to shift right 4
+    /* Register order: X_H, X_L, Z_H, Z_L, Y_H, Y_L */
     //TwReadMultiple(MAGNETOMETER_ADDR, MAG_X_REG_L, Buffer, 2);
     //MagX = (int16_t)((uint16_t)Buffer[0] | ((uint16_t)Buffer[1] << 8)) >> 4;
-    TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_L, &x_low);
     TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_H, &x_high);
+    TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_L, &x_low);
     MagX = (int16_t)((uint16_t)x_low | ((uint16_t)x_high << 8)) >> 4;
 
-    sprintf(temp_str, "%x,%x,%d", x_low, x_high, MagX);
+    sprintf(temp_str, "%2x, %2x, %4d", x_low, x_high, MagX);
     LcdWriteString(temp_str, LCD_LINE_ONE);
+
+    /* Read the Z registers so all six are read */
+    TwReadByte(MAGNETOMETER_ADDR, OUT_Z_H_M, &z_high);
+    TwReadByte(MAGNETOMETER_ADDR, OUT_Z_L_M, &z_low);
 
     //TwReadMultiple(MAGNETOMETER_ADDR, MAG_Y_REG_L, Buffer, 2);
     //MagY = (Buffer[0] | (Buffer[1] << 8));
-    TwReadByte(MAGNETOMETER_ADDR, MAG_Y_REG_L, &y_low);
     TwReadByte(MAGNETOMETER_ADDR, MAG_Y_REG_H, &y_high);
+    TwReadByte(MAGNETOMETER_ADDR, MAG_Y_REG_L, &y_low);
     MagY = (int16_t)((uint16_t)y_low | ((uint16_t)y_high << 8)) >> 4;
 
     heading = CalculateDegHeading(MagX, MagY);
 
     //sprintf(temp_str, "%x,%x,%d", Buffer[0], Buffer[1], MagY);
-    sprintf(temp_str, "%x,%x,%d,%d", y_low, y_high, MagY, heading);
+    sprintf(temp_str, "%2x, %2x, %4d,%3d", y_low, y_high, MagY, heading);
     LcdWriteString(temp_str, LCD_LINE_TWO);
 
     //calculate heading
