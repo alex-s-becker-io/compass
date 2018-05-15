@@ -48,7 +48,6 @@ void InitDevice() {
 
     /* LCD setup */
     /* All PORTB pins are data pins for the LCD screen */
-    //DDRB = (uint8_t)(-1);
     DDRB = PORT_ALL_OUTPUT;
 
     /* PDO, PD1, and PD3 are all used as control pins for the LCD screen.
@@ -83,6 +82,7 @@ void InitDevice() {
      * to signal that data is ready to be read (obviously).  INT0 is set to go
      * off on a rising edge.
      */
+    // This may not ultimately be used
     //EIMSK |= _BV(INT0);
     //EICRA |= _BV(ISC01) | _BV(ISC00);
 
@@ -97,16 +97,6 @@ void InitDevice() {
         sprintf(temp_str, "setup error: %x", status);
         LcdWriteString(temp_str, LCD_LINE_ONE);
     }
-
-    /*status = TwReadByte(MAGNETOMETER_ADDR, MAG_MR_REG, &test);
-    if(status != TW_SUCCESS) {
-        sprintf(temp_str, "setup error: %x", status);
-        LcdWriteString(temp_str, LCD_LINE_ONE);
-    }
-    if(test != 0x00)
-        PORTC |= _BV(PC0);*/
-
-
 
     status = TwReadByte(MAGNETOMETER_ADDR, MAG_CRA_REG, &test);
     if(status != TW_SUCCESS) {
@@ -126,15 +116,14 @@ void InitDevice() {
 /* It's the main function for the program, what more do you need to know? */
 int main() {
     int16_t  Degrees = 0;
-    uint8_t  SregSave;
+    //uint8_t  SregSave;
     char degree_str[16];
     //int16_t  Correction = 0;
-    uint8_t test, test2;
 	
 	/* Disable interrupts during setup */
 	cli();
 
-    Degrees = Degrees; //Because it's a warning otherwise, and I don't think I can get rid of it
+    //Degrees = Degrees; //Because it's a warning otherwise, and I don't think I can get rid of it
     DataReady = FALSE;
 
     DDRC = (uint8_t)(-1);
@@ -143,20 +132,14 @@ int main() {
     /* Setup the ATmega328p */
     InitDevice();
 
-    //Debug
-    PORTC &= ~(_BV(PC0));
-    PORTC &= ~(_BV(PC1));
-
     /* Enable interrupts */
     sei();
 
     /* Wait till we get data */
     //while(!DataReady);
-    //LcdWriteString("Degrees:", LCD_LINE_ONE);
-    //PORTC |= _BV(PC1);
 
 
-    SendByte(CLEAR_DISPLAY, TRUE);
+    //SendByte(CLEAR_DISPLAY, TRUE);
 
     /* Main loop */
     while(1) {
@@ -176,18 +159,7 @@ int main() {
         }*/
 
         // Polling time
-        PORTC &= ~(_BV(PC0));
-        PORTC &= ~(_BV(PC1));
-        TwReadByte(MAGNETOMETER_ADDR, SR_REG_M, &test);
-        if(test & SR_REG_M_DRDY) {
-            Degrees = ProcessData();
-            PORTC |= _BV(PC0);
-            PORTC |= _BV(PC1);
-        } else if(test & SR_REG_M_LOCK)
-            PORTC |= _BV(PC0);
-        else
-            PORTC |= _BV(PC1);
-        //LcdWriteString("Captured data   ", LCD_LINE_ONE);
+        Degrees = ProcessData();
 
         //Currently not used, add in later once supplies are received
         /* Check to see if the calibration circuit is active, and if so, adjust
@@ -200,18 +172,12 @@ int main() {
             /* If we aren't calibrating, display the direction and such */
             //LcdWriteString(HeadingString(Degrees), LCD_LINE_ONE);
         //}
-        //Degrees += Correction;
-        /*TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_L, &test);
-        TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_H, &test2);
-        sprintf(degree_str, "MAG_X hex %x%x", test2, test);
-        LcdWriteString(degree_str, LCD_LINE_ONE);
+        /* Display the heading */
+        //LcdWriteString(HeadingString(Degrees), LCD_LINE_ONE);
 
-        Degrees = (test2 << 8) | test;
-        sprintf(degree_str, "MAG_X deg %d", Degrees);
-        LcdWriteString(degree_str, LCD_LINE_TWO);*/
-
-        //sprintf(degree_str, "Degrees: %3d°", Degrees);
-        //LcdWriteString(degree_str, LCD_LINE_TWO);
+        /* Display the direction in degrees */
+        sprintf(degree_str, " Degrees: %3d  ", Degrees);
+        LcdWriteString(degree_str, LCD_LINE_TWO);
     }
     /* If this is ever called, I don't even know anymore */
     return 0;
@@ -273,7 +239,7 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
     TempResult = atan2(Y, X);
 
     /* Convert the result to degrees */
-    TempResult = -TempResult * RAD_TO_DEG;
+    TempResult = TempResult * RAD_TO_DEG;
 
     /* Correct the result */
     if(TempResult >= 360)
@@ -315,8 +281,8 @@ int16_t CalculateDegHeading(int16_t X, int16_t Y) {
 int16_t ProcessData() {
     int16_t  MagX = 0;
     int16_t  MagY = 0;
-    int16_t  heading;
     //int16_t  MagZ = 0; //may not need
+    int16_t  heading;
     uint8_t  Buffer[6];
     uint8_t x_low, x_high, y_low, y_high, z_low, z_high;
     char temp_str[17];
@@ -326,30 +292,30 @@ int16_t ProcessData() {
     //read I2C data
     // Might have to shift right 4
     /* Register order: X_H, X_L, Z_H, Z_L, Y_H, Y_L */
-    //TwReadMultiple(MAGNETOMETER_ADDR, MAG_X_REG_L, Buffer, 2);
-    //MagX = (int16_t)((uint16_t)Buffer[0] | ((uint16_t)Buffer[1] << 8)) >> 4;
-    TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_H, &x_high);
-    TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_L, &x_low);
-    MagX = (int16_t)((uint16_t)x_low | ((uint16_t)x_high << 8)) >> 4;
+    TwReadMultiple(MAGNETOMETER_ADDR, OUT_X_H_M, Buffer, 2);
+    MagX = (int16_t)((uint16_t)Buffer[0] | ((uint16_t)Buffer[1] << 8)) >> 4;
+    //TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_H, &x_high);
+    //TwReadByte(MAGNETOMETER_ADDR, MAG_X_REG_L, &x_low);
+    //MagX = (int16_t)((uint16_t)x_low | ((uint16_t)x_high << 8)) >> 4;
 
-    sprintf(temp_str, "%2x, %2x, %4d", x_low, x_high, MagX);
+    sprintf(temp_str, "%2x, %2x, %4d", Buffer[0], Buffer[1], MagX);
     LcdWriteString(temp_str, LCD_LINE_ONE);
 
     /* Read the Z registers so all six are read */
     TwReadByte(MAGNETOMETER_ADDR, OUT_Z_H_M, &z_high);
     TwReadByte(MAGNETOMETER_ADDR, OUT_Z_L_M, &z_low);
 
-    //TwReadMultiple(MAGNETOMETER_ADDR, MAG_Y_REG_L, Buffer, 2);
+    //TwReadMultiple(MAGNETOMETER_ADDR, OUT_Y_H_M, Buffer, 2);
     //MagY = (Buffer[0] | (Buffer[1] << 8));
     TwReadByte(MAGNETOMETER_ADDR, MAG_Y_REG_H, &y_high);
     TwReadByte(MAGNETOMETER_ADDR, MAG_Y_REG_L, &y_low);
     MagY = (int16_t)((uint16_t)y_low | ((uint16_t)y_high << 8)) >> 4;
 
-    heading = CalculateDegHeading(MagX, MagY);
+    //heading = CalculateDegHeading(MagX, MagY);
 
     //sprintf(temp_str, "%x,%x,%d", Buffer[0], Buffer[1], MagY);
-    sprintf(temp_str, "%2x, %2x, %4d,%3d", y_low, y_high, MagY, heading);
-    LcdWriteString(temp_str, LCD_LINE_TWO);
+    //sprintf(temp_str, "%2x, %2x, %4d,%3d", y_low, y_high, MagY, heading);
+    //LcdWriteString(temp_str, LCD_LINE_TWO);
 
     //calculate heading
     return CalculateDegHeading(MagX, MagY);

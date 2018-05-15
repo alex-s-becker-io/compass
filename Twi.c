@@ -176,10 +176,7 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
         //LcdWriteString(error_str, LCD_LINE_TWO);
         goto Cleanup;
     }
-
-    /* Transmit the slave address and read bit */
-    TWDR = TW_SLAVE_ADDR_READ(Address);
-    TW_SEND_DATA;
+/* Transmit the slave address and read bit */ TWDR = TW_SLAVE_ADDR_READ(Address); TW_SEND_DATA;
     loop_until_bit_is_set(TWCR, TWINT);
 
     if(TW_STATUS != TW_MR_SLA_ACK) {
@@ -210,6 +207,7 @@ uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
                        uint8_t *Bytes, uint16_t Num) {
     uint16_t    i;
     uint8_t     Status = TW_SUCCESS;
+    char error_str[17];
 
     /* Start the TWI */
     TW_SEND_START;
@@ -240,7 +238,7 @@ uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
     loop_until_bit_is_set(TWCR, TWINT);
 
     /* Check for an ACK from the slave */
-    if(TW_STATUS != TW_MT_SLA_ACK) {
+    if(TW_STATUS != TW_MT_DATA_ACK) {
         Status = TW_STATUS;
         goto Cleanup;
     }
@@ -264,20 +262,30 @@ uint8_t TwReadMultiple(uint8_t Address, uint8_t Offset,
         goto Cleanup;
     }
 
+    //PORTC |= _BV(PC0);
+
     /* Read the data from the bus */
     for(i = 0; i < (Num - 1); i++) {
         TW_SEND_ACK;
 
+        PORTC |= _BV(PC1);
+        loop_until_bit_is_set(TWCR, TWINT);
+        PORTC |= _BV(PC0);
+
         if(TW_STATUS != TW_MR_DATA_ACK) {
             Status = TW_STATUS;
+            sprintf(error_str, "error 2: %x", Status);
+            LcdWriteString(error_str, LCD_LINE_ONE);
             goto Cleanup;
         }
         Bytes[i] = TWDR;
     }
 
+    PORTC |= _BV(PC1);
 
     /* Send NACK back then stop */
-    TWCR |= _BV(TWINT);
+    //TWCR |= _BV(TWINT);
+    TW_SEND_NACK;
 
     loop_until_bit_is_set(TWCR, TWINT);
     if(TW_STATUS != TW_MR_DATA_NACK) {

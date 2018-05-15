@@ -14,10 +14,10 @@
 #define TW_SEND_START   (TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN))
 #define TW_SEND_DATA    (TWCR = _BV(TWINT) | _BV(TWEN))
 #define TW_SEND_ACK     (TWCR = _BV(TWINT) | _BV(TWEA))
+#define TW_SEND_NACK    (TWCR = _BV(TWINT))
 
 /* Error define */
 #define TW_SUCCESS      ((uint8_t)~TW_STATUS_MASK)
-#define TW_STATUS_SHIFT 3
 
 /* Function Prototypes */
 uint8_t TwWriteByte(uint8_t Address, uint8_t Offset, uint8_t Value);

@@ -56,8 +56,12 @@
 #define MAG_MR_REG  0x02
 #define MAG_X_REG_H 0x03
 #define MAG_X_REG_L 0x04
+#define OUT_X_H_M   0x03
+#define OUT_X_L_M   0x04
 #define OUT_Z_H_M   0x05
 #define OUT_Z_L_M   0x06
+#define OUT_Y_H_M   0x07
+#define OUT_Y_L_M   0x08
 #define MAG_Y_REG_H 0x07
 #define MAG_Y_REG_L 0x08
 // other regs
