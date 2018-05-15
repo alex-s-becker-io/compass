@@ -122,7 +122,57 @@ Cleanup:
     return Status;
 }
 
-uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
+//uint8_t tw_read_byte(uint8_t address, uint8_t *value) {
+uint8_t tw_read_byte(uint8_t address) {
+    uint8_t status = TW_SUCCESS;
+    uint8_t temp;
+
+    /* Start the TWI */
+    TW_SEND_START;
+
+    /* Wait till TWINT is set */
+    loop_until_bit_is_set(TWCR, TWINT);
+
+    /* If the TWI status is not START, then there is an error */
+    if(TW_STATUS != TW_START) {
+        status = TW_STATUS;
+        PORTC = _BV(PC0);
+        goto cleanup;
+    }
+
+    TWDR = TW_SLAVE_ADDR_READ(address);
+    TW_SEND_DATA;
+    loop_until_bit_is_set(TWCR, TWINT);
+
+    if(TW_STATUS != TW_MR_SLA_ACK) {
+        status = TW_STATUS;
+        PORTC = _BV(PC1);
+        goto cleanup;
+    }
+
+    /* Send NACK back then stop */
+    //TWCR |= _BV(TWINT);
+    TW_SEND_NACK;
+
+    loop_until_bit_is_set(TWCR, TWINT);
+
+    if(TW_STATUS != TW_MR_DATA_NACK) {
+        status = TW_STATUS;
+        PORTC = _BV(PC0) | _BV(PC1);
+        goto cleanup;
+    }
+           
+    /* Read the data from the bus */
+    //*value = TWDR;
+    temp = TWDR;
+
+cleanup:
+    TW_SEND_STOP; 
+    //return status;
+    return temp;
+}
+
+uint8_t tw_read_reg_byte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
     uint8_t Status = TW_SUCCESS;
     uint8_t temp = 0;
     char error_str[17];
@@ -176,7 +226,10 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
         //LcdWriteString(error_str, LCD_LINE_TWO);
         goto Cleanup;
     }
-/* Transmit the slave address and read bit */ TWDR = TW_SLAVE_ADDR_READ(Address); TW_SEND_DATA;
+
+    /* Transmit the slave address and read bit */
+    TWDR = TW_SLAVE_ADDR_READ(Address);
+    TW_SEND_DATA;
     loop_until_bit_is_set(TWCR, TWINT);
 
     if(TW_STATUS != TW_MR_SLA_ACK) {
@@ -187,7 +240,8 @@ uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value) {
     }
 
     /* Send NACK back then stop */
-    TWCR |= _BV(TWINT);
+    //TWCR |= _BV(TWINT);
+    TW_SEND_NACK;
 
     loop_until_bit_is_set(TWCR, TWINT);
     if(TW_STATUS != TW_MR_DATA_NACK) {

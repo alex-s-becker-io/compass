@@ -14,14 +14,16 @@
 #define TW_SEND_START   (TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN))
 #define TW_SEND_DATA    (TWCR = _BV(TWINT) | _BV(TWEN))
 #define TW_SEND_ACK     (TWCR = _BV(TWINT) | _BV(TWEA))
-#define TW_SEND_NACK    (TWCR = _BV(TWINT))
+#define TW_SEND_NACK    (TWCR |= _BV(TWINT))
 
 /* Error define */
 #define TW_SUCCESS      ((uint8_t)~TW_STATUS_MASK)
 
 /* Function Prototypes */
 uint8_t TwWriteByte(uint8_t Address, uint8_t Offset, uint8_t Value);
-uint8_t TwReadByte(uint8_t Address, uint8_t Offset, uint8_t *Value);
+//uint8_t tw_read_byte(uint8_t address, uint8_t *value);
+uint8_t tw_read_byte(uint8_t address);
+uint8_t tw_read_reg_byte(uint8_t Address, uint8_t Offset, uint8_t *Value);
 
 uint8_t TwWriteMultiple(uint8_t Address, uint8_t Offset,
                         uint8_t *Bytes, uint16_t Num);
