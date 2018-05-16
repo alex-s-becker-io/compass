@@ -86,22 +86,22 @@ boolean InitDevice() {
         return FALSE;
     }
 
-    status = TwWriteByte(MAGNETOMETER_ADDR, CRA_REG_M, 0x14);
+    /*status = TwWriteByte(MAGNETOMETER_ADDR, CRA_REG_M, 0x14);
     if(status != TW_SUCCESS) {
         sprintf(error_str, "setup error: %x", status);
         LcdWriteString(error_str, LCD_LINE_TWO);
         return FALSE;
-    }
+    }*/
 
-    LcdWriteString(WAITING, LCD_LINE_TWO);
+    //LcdWriteString(WAITING, LCD_LINE_TWO);
 
     /* "prime" the magnetometer */
-    status = tw_read_reg_byte(MAGNETOMETER_ADDR, MR_REG_M, &test);
+    /*status = tw_read_reg_byte(MAGNETOMETER_ADDR, MR_REG_M, &test);
     if(status != TW_SUCCESS) {
         sprintf(error_str, "setup error: %x", status);
         LcdWriteString(error_str, LCD_LINE_TWO);
         return FALSE;
-    }
+    }*/
 
     return TRUE;
 }
@@ -137,11 +137,11 @@ int main() {
         heading2 = (uint16_t)((Degrees - heading1) * 100);
 
         /* Display the heading */
-        LcdWriteString(HeadingString(Degrees), LCD_LINE_ONE);
+        //LcdWriteString(HeadingString(Degrees), LCD_LINE_ONE);
 
         /* Display the direction in degrees */
         sprintf(degree_str, "Degrees: %3d.%d ", heading1, heading2);
-        LcdWriteString(degree_str, LCD_LINE_TWO);
+        //LcdWriteString(degree_str, LCD_LINE_TWO);
     }
     /* If this is ever called, I don't even know anymore */
     return 0;
@@ -192,7 +192,7 @@ char* HeadingString(int16_t Degrees) {
  *
  * Returns: The number of degrees from the X axis the vector is from
  */
-double CalculateDegHeading(int16_t X, int16_t Y) {
+double CalculateDegHeading(int16_t x, int16_t y) {
     double TempResult;
     //May not needed due to how atan is handled
     /*if(X == 0 && Y >= 0)
@@ -200,15 +200,16 @@ double CalculateDegHeading(int16_t X, int16_t Y) {
     else if (X == 0 && Y < 0)
         return 180;*/
 
-    TempResult = atan2(Y, X);
+    TempResult = atan2(y, x);
 
     /* Convert the result to degrees */
     TempResult = TempResult * RAD_TO_DEG;
 
     /* Correct the result */
-    if(TempResult >= 360)
-        TempResult -= 360; /* Adjust, shouldn't be an issue */
-    else if(TempResult < 0)
+    //if(TempResult >= 360)
+        //TempResult -= 360; /* Adjust, shouldn't be an issue */
+    //else if(TempResult < 0)
+    if(TempResult < 0)
         TempResult += 360; /* Convert to a positive degree */
     //return floor(TempResult);
     return TempResult;
@@ -226,7 +227,7 @@ double ProcessData() {
     int16_t  mag_x = 0;
     int16_t  mag_y = 0;
     int16_t  mag_z = 0; //may not need
-    //int16_t  heading;
+    int16_t  heading;
     uint8_t x_low, x_high, y_low, y_high, z_low, z_high;
     char temp_str[17];
 
@@ -244,13 +245,13 @@ double ProcessData() {
     tw_read_reg_byte(MAGNETOMETER_ADDR, OUT_Y_L_M, &y_low);
     mag_y = (int16_t)((uint16_t)y_low | ((uint16_t)y_high << 8));
 
-    //sprintf(temp_str, "%2x,%2x,%d    ", x_high, x_low, mag_x);
-    //LcdWriteString(temp_str, LCD_LINE_ONE);
+    sprintf(temp_str, "%2x,%2x,%d    ", x_high, x_low, mag_x);
+    LcdWriteString(temp_str, LCD_LINE_ONE);
 
-    //heading = floor(CalculateDegHeading(mag_x, mag_y));
+    heading = floor(CalculateDegHeading(mag_x, mag_y));
 
-    //sprintf(temp_str, "%2x,%2x,%d,%3d", y_low, y_high, mag_y, heading);
-    //LcdWriteString(temp_str, LCD_LINE_TWO);
+    sprintf(temp_str, "%2x,%2x,%d,%3d  ", y_low, y_high, mag_y, heading);
+    LcdWriteString(temp_str, LCD_LINE_TWO);
 
     //calculate heading
     return CalculateDegHeading(mag_x, mag_y);
