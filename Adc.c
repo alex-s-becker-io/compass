@@ -1,4 +1,4 @@
 /* Comment block goes here!
  *
- * Name: Alex "iospace" Becker
+ * Name: Alex Becker
  */
